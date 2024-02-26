@@ -7,6 +7,7 @@ import (
     "github.com/google/uuid"
     "os"
     "bufio"
+    "github.com/MasterDimmy/go-cls"
 )
 
 func customerFunction() {
@@ -28,6 +29,11 @@ OuterLoop:
         switch choice {
         case 1:
             for {
+                err := printRooms()
+                if err != nil {
+                    fmt.Println("Error reading room data:", err)
+                }
+
                 fmt.Println("\nRooms Menu:")
                 fmt.Println("1. Add room")
                 fmt.Println("2. Edit room")
@@ -52,15 +58,29 @@ OuterLoop:
 
                     err := addRoom(roomType, roomNumber)
                     if err != nil {
+                        cls.CLS()
                         fmt.Println("Error creating user:", err)
                     } else {
+                        cls.CLS()
                         fmt.Println("User created successfully")
                     }
 
                 case 2:
                     fmt.Println("To be edited soon")
                 case 3:
-                    fmt.Println("To be deleted soon")
+                    var roomNumber string
+                    fmt.Print("Enter the room number to be deleted: ")
+                    fmt.Scanln(&roomNumber)
+
+                    err := deleteRoom(roomNumber)
+                    if err != nil {
+                        cls.CLS()
+                        fmt.Println("Error deleting room:", err)
+                    } else {
+                        cls.CLS()
+                        fmt.Println("Room deleted successfully")
+                    }
+
                 case 4:
                     fmt.Println("Going back to Admin Menu...")
                     continue OuterLoop 
@@ -124,6 +144,39 @@ func connectDB() (*sql.DB, error) {
     return db, nil
 }
 
+func printRooms() error {
+    db, err := connectDB()
+    if err != nil {
+        return err
+    }
+    defer db.Close()
+
+    rows, err := db.Query("SELECT room_number, room_type FROM tbl_rooms")
+    if err != nil {
+        return err
+    }
+    defer rows.Close()
+
+    for rows.Next() {
+        var roomNumber string
+        var capacity string
+
+        err := rows.Scan(&roomNumber, &capacity)
+        if err != nil {
+            return err
+        }
+
+        fmt.Printf("Room Number: %s, Capacity: %s\n", roomNumber, capacity)
+    }
+
+    if err := rows.Err(); err != nil {
+        return err
+    }
+
+    return nil
+}
+
+
 func addRoom(roomType string, roomNumber int) error {
     db, err := connectDB()
     if err != nil {
@@ -134,6 +187,21 @@ func addRoom(roomType string, roomNumber int) error {
     uuid := uuid.New().String()
 
     _, err = db.Exec("INSERT INTO tbl_rooms (room_id, room_type, room_number) VALUES (?, ?, ?)", uuid, roomType, roomNumber)
+    if err != nil {
+        return err
+    }
+
+    return nil
+}
+
+func deleteRoom(roomNumber string) error {
+    db, err := connectDB()
+    if err != nil {
+        return err
+    }
+    defer db.Close()
+
+    _, err = db.Exec("DELETE FROM tbl_rooms WHERE room_number=?", roomNumber)
     if err != nil {
         return err
     }
