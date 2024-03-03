@@ -28,7 +28,7 @@ OuterLoop:
 		fmt.Println("2. Doctor function")
 		fmt.Println("3. Assign Doctor")
 		fmt.Println("4. View Appointments")
-		fmt.Println("3. Go back to Main Menu")
+		fmt.Println("5. Go back to Main Menu")
 		fmt.Print("Enter your choice: ")
 		fmt.Scanln(&choice)
 		switch choice {
@@ -77,7 +77,7 @@ OuterLoop:
 					fmt.Print("Enter the room number to be deleted: ")
 					fmt.Scanln(&roomNumber)
 
-					err := deleteRoom(roomNumber)
+					err := deleteRecord(roomNumber, "room")
 					if err != nil {
 						cls.CLS()
 						fmt.Println("Error deleting room:", err)
@@ -126,7 +126,7 @@ OuterLoop:
 					scanner.Scan()
 					middleName = scanner.Text()
 
-					fmt.Print("Enter Dr. Middle Name: ")
+					fmt.Print("Enter Dr. Specialization: ")
 					scanner.Scan()
 					specialization = scanner.Text()
 
@@ -142,27 +142,19 @@ OuterLoop:
 				case 2:
 					fmt.Println("To be edited soon")
 				case 3:
-					var lastName, firstName, middleName string
+					var hp_id string
 
-					fmt.Print("Enter Dr. Last Name to be deleted: ")
+					fmt.Print("Enter Doctor ID to be deleted: ")
 					scanner.Scan()
-					lastName = scanner.Text()
+					hp_id = scanner.Text()
 
-					fmt.Print("Enter Dr. First Name to be deleted: ")
-					scanner.Scan()
-					firstName = scanner.Text()
-
-					fmt.Print("Enter Dr. Middle Name to be deleted: ")
-					scanner.Scan()
-					middleName = scanner.Text()
-
-					err := deleteDoctor(lastName, firstName, middleName)
+					err := deleteRecord(hp_id, "doctor")
 					if err != nil {
 						cls.CLS()
-						fmt.Println("Error deleting room:", err)
+						fmt.Println("Error removing doctor:", err)
 					} else {
 						cls.CLS()
-						fmt.Println("Room deleted successfully")
+						fmt.Println("Doctor removed successfully")
 					}
 
 				case 4:
@@ -196,6 +188,12 @@ OuterLoop:
 						fmt.Println("Error reading doctor data:", err)
 					}
 
+					fmt.Println("\nAssigned Doctors: ")
+					err = printAssignedDoctor()
+					if err != nil {
+						fmt.Println("Error deleting doctor & room data:", err)
+					}
+
 					// To read the whole line, use standard input scanner
 					var roomNumber string
 					fmt.Print("Enter room number: ")
@@ -212,10 +210,10 @@ OuterLoop:
 					err := assignDoctor(roomNumber, doctorId)
 					if err != nil {
 						cls.CLS()
-						fmt.Println("Error creating user:", err)
+						fmt.Println("Error assigning a doctor:", err)
 					} else {
 						cls.CLS()
-						fmt.Println("User created successfully")
+						fmt.Println("Successfully assigned doctor to a room!")
 					}
 
 				case 2:
@@ -225,7 +223,7 @@ OuterLoop:
 					fmt.Print("Enter the room number to be deleted: ")
 					fmt.Scanln(&roomNumber)
 
-					err := deleteRoom(roomNumber)
+					// err := deleteRoom(roomNumber)
 					if err != nil {
 						cls.CLS()
 						fmt.Println("Error deleting room:", err)
@@ -341,31 +339,6 @@ func addRoom(roomType string, roomNumber int) error {
 	return nil
 }
 
-func deleteRoom(roomNumber string) error {
-	db, err := connectDB()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	// Execute the delete operation
-	result, err := db.Exec("DELETE FROM tbl_rooms WHERE room_number=?", roomNumber)
-	if err != nil {
-		return err
-	}
-
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if rowsAffected == 0 {
-		return errors.New("Room doesn't exist")
-	}
-
-	return nil
-}
-
 func printDoctors() error {
 	db, err := connectDB()
 	if err != nil {
@@ -431,14 +404,23 @@ func addDoctor(lastName string, firstName string, middleName string, specializat
 	return nil
 }
 
-func deleteDoctor(lastName string, firstName string, middleName string) error {
+func deleteRecord(identifier string, table string) error {
 	db, err := connectDB()
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 
-	result, err := db.Exec("DELETE FROM tbl_doctors WHERE last_name=? AND first_name=? AND middle_name=?", lastName, firstName, middleName)
+	var query string
+
+	switch table {
+	case "room":
+		query = "DELETE FROM tbl_rooms WHERE room_number=?"
+	case "doctor":
+		query = "DELETE FROM tbl_doctors WHERE hp_id=?"
+	}
+
+	result, err := db.Exec(query, identifier)
 	if err != nil {
 		return err
 	}
@@ -449,7 +431,7 @@ func deleteDoctor(lastName string, firstName string, middleName string) error {
 	}
 
 	if rowsAffected == 0 {
-		return errors.New("Doctor doesn't exist")
+		return errors.New(identifier + " doesn't exist")
 	}
 
 	return nil
@@ -467,8 +449,6 @@ func assignDoctor(roomNumber string, doctorID string) error {
 	if err != nil {
 		return err
 	}
-
-	fmt.Printf(roomID)
 
 	doctorID, err = getId("", doctorID)
 	if err != nil {
@@ -497,15 +477,46 @@ func getId(roomNumber string, doctorID string) (string, error) {
 
 	if doctorID != "" {
 		query = "SELECT doctor_id FROM tbl_doctors WHERE hp_id = ?"
-
-		err = db.QueryRow(query, doctorID).Scan(&id)
+		db.QueryRow(query, doctorID).Scan(&id)
 	} else if roomNumber != "" {
 		query = "SELECT room_id FROM tbl_rooms WHERE room_number = ?"
-
-		err = db.QueryRow(query, roomNumber).Scan(&id)
+		db.QueryRow(query, roomNumber).Scan(&id)
 	} else {
 		return "", errors.New("invalid arguments")
 	}
 
 	return id, nil
+}
+
+func printAssignedDoctor() error {
+	db, err := connectDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT CONCAT(d.last_name, ', ', d.first_name, ' ', d.middle_name), d.specialization, r.room_number FROM tbl_room_doctor rd JOIN tbl_doctors d ON rd.doctor_id_fk = d.doctor_id JOIN tbl_rooms r ON rd.room_id_fk = r.room_id")
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var drName string
+		var roomNumber string
+		var specialization string
+
+		err := rows.Scan(&drName, &specialization, &roomNumber)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("Doctor Name: %s| Specialization: %s| Room Name: %s\n", drName, specialization, roomNumber)
+	}
+
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	return nil
 }
