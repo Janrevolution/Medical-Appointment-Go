@@ -1,5 +1,11 @@
-##Creation of tables
+# Set-up
 
+1. Using of Visual Studio Code
+2. Download and install [Go](https://go.dev/doc/install). Add to Path in environment variables
+3. Place the projects under ```xampp\htdocs``` as we are using mysql
+
+# Creation of tables [FOR DOCUMENTATION]
+```mysql
 Create table tbl_doctor(
     doctor_id varchar(64) primary key,
     last_name varchar(32),
@@ -35,4 +41,4 @@ Create table tbl_reservation_details(
     foreign key (patient_id_fk) references tbl_patients(patient_id),
     foreign key (rd_id_fk) references tbl_room_doctor(rd_id)
 );
-
+```
