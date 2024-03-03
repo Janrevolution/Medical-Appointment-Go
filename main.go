@@ -247,6 +247,74 @@ OuterLoop:
 					fmt.Println("Invalid choice. Please try again.")
 				}
 			}
+		case 4:
+			for {
+				fmt.Println("\nAccount Creation")
+				fmt.Println("1. Create Account")
+				fmt.Println("2. Update Account")
+				fmt.Println("3. Delete Account")
+				fmt.Println("4. Go back to Admin Menu")
+				fmt.Print("Enter your choice: ")
+				fmt.Scanln(&choice)
+
+				switch choice {
+				case 1:
+					fmt.Println("\nList of Employees: ")
+					err = printEmployees()
+					if err != nil {
+						fmt.Println("Error reading employee data:", err)
+					}
+
+					// To read the whole line, use standard input scanner
+					var hp_id string
+					fmt.Print("Enter ID number: ")
+					scanner.Scan()
+					hp_id = scanner.Text()
+
+					var username string
+					fmt.Print("Enter username: ")
+					scanner.Scan()
+					username = scanner.Text()
+
+					var password string
+					fmt.Print("Enter password: ")
+					scanner.Scan()
+					password = scanner.Text()
+
+					// fmt.Printf("You entered room type: %s and room number: %d\n", roomType, roomNumber)
+
+					err := addAccount(hp_id, username, password)
+					if err != nil {
+						cls.CLS()
+						fmt.Println("Error creation:", err)
+					} else {
+						cls.CLS()
+						fmt.Println("Successfully created an account!")
+					}
+
+				case 2:
+					fmt.Println("To be edited soon")
+				case 3:
+					var accountId string
+					fmt.Print("Enter the ID to be deleted: ")
+					fmt.Scanln(&accountId)
+
+					err := deleteRecord(accountId, "account")
+					if err != nil {
+						cls.CLS()
+						fmt.Println("Error deleting room:", err)
+					} else {
+						cls.CLS()
+						fmt.Println("Account deleted successfully")
+					}
+
+				case 4:
+					fmt.Println("Going back to Admin Menu...")
+					continue OuterLoop
+				default:
+					fmt.Println("Invalid choice. Please try again.")
+				}
+			}
 		case 5:
 			fmt.Println("Going back to Main Menu...")
 			return
@@ -459,6 +527,8 @@ func deleteRecord(identifier string, table string) error {
 		query = "DELETE FROM tbl_rooms WHERE room_number=?"
 	case "employee":
 		query = "DELETE FROM tbl_employees WHERE hp_id=?"
+	case "account":
+		query = "DELETE FROM tbl_accounts WHERE emp_id=?"
 	}
 
 	result, err := db.Exec(query, identifier)
@@ -556,6 +626,26 @@ func printAssignedDoctor() error {
 	}
 
 	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func addAccount(hp_id string, username string, password string) error {
+	db, err := connectDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	emp_id, err := getId("", hp_id)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec("INSERT INTO tbl_accounts (emp_id, username, password) VALUES (?, ?, ?)", emp_id, username, password)
+	if err != nil {
 		return err
 	}
 
