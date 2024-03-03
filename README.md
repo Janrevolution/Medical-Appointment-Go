@@ -41,4 +41,16 @@ Create table tbl_reservation_details(
     foreign key (patient_id_fk) references tbl_patients(patient_id),
     foreign key (rd_id_fk) references tbl_room_doctor(rd_id)
 );
+
+Create table tbl_accounts(
+    emp_id varchar(64) primary key,
+    username varchar(32) not null,
+    password varchar(32) not null,
+    foreign key (emp_id) references tbl_employees(emp_id)
+);
+
+Create table tbl_secretary(
+    sec_id int primary key auto increment,
+    name varchar(128) not null
+);
 ```

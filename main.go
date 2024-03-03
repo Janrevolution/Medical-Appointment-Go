@@ -13,8 +13,12 @@ import (
 	"github.com/google/uuid"
 )
 
-func customerFunction() {
-	fmt.Println("Hello, patient!")
+func secretary() {
+	fmt.Println("Welcom Sec!")
+}
+
+func doctor() {
+	fmt.Println("Welcome Doc!")
 }
 
 func adminFunction() {
@@ -25,9 +29,9 @@ OuterLoop:
 	for {
 		fmt.Println("\nAdmin Menu:")
 		fmt.Println("1. Rooms")
-		fmt.Println("2. Doctor function")
+		fmt.Println("2. Employee function")
 		fmt.Println("3. Assign Doctor")
-		fmt.Println("4. View Appointments")
+		fmt.Println("4. Create Account")
 		fmt.Println("5. Go back to Main Menu")
 		fmt.Print("Enter your choice: ")
 		fmt.Scanln(&choice)
@@ -95,15 +99,15 @@ OuterLoop:
 			}
 		case 2:
 			for {
-				err = printDoctors()
+				err = printEmployees()
 				if err != nil {
-					fmt.Println("Error reading doctor data:", err)
+					fmt.Println("Error reading employee data:", err)
 				}
 
-				fmt.Println("\nDoctor Menu:")
-				fmt.Println("1. Add Doctor")
-				fmt.Println("2. Edit Doctor")
-				fmt.Println("3. Delete room")
+				fmt.Println("\nEmployee Menu:")
+				fmt.Println("1. Add Employee")
+				fmt.Println("2. Edit Employee")
+				fmt.Println("3. Delete Employee")
 				fmt.Println("4. Go back to Admin Menu")
 				fmt.Print("Enter your choice: ")
 				fmt.Scanln(&choice)
@@ -112,25 +116,29 @@ OuterLoop:
 				case 1:
 
 					// To read the whole line, use standard input scanner
-					var lastName, firstName, middleName, specialization string
+					var lastName, firstName, middleName, profession, specialization string
 
-					fmt.Print("Enter Dr. Last Name: ")
+					fmt.Print("Enter Last Name: ")
 					scanner.Scan()
 					lastName = scanner.Text()
 
-					fmt.Print("Enter Dr. First Name: ")
+					fmt.Print("Enter First Name: ")
 					scanner.Scan()
 					firstName = scanner.Text()
 
-					fmt.Print("Enter Dr. Middle Name: ")
+					fmt.Print("Enter Middle Name: ")
 					scanner.Scan()
 					middleName = scanner.Text()
 
-					fmt.Print("Enter Dr. Specialization: ")
+					fmt.Print("Enter Profession: ")
+					scanner.Scan()
+					profession = scanner.Text()
+
+					fmt.Print("Enter Specialization(N/A for non-doctors): ")
 					scanner.Scan()
 					specialization = scanner.Text()
 
-					err := addDoctor(lastName, firstName, middleName, specialization)
+					err := addEmployee(lastName, firstName, middleName, profession, specialization)
 					if err != nil {
 						cls.CLS()
 						fmt.Println("Error creating user:", err)
@@ -144,17 +152,17 @@ OuterLoop:
 				case 3:
 					var hp_id string
 
-					fmt.Print("Enter Doctor ID to be deleted: ")
+					fmt.Print("Enter Employee ID to be deleted: ")
 					scanner.Scan()
 					hp_id = scanner.Text()
 
-					err := deleteRecord(hp_id, "doctor")
+					err := deleteRecord(hp_id, "employee")
 					if err != nil {
 						cls.CLS()
-						fmt.Println("Error removing doctor:", err)
+						fmt.Println("Error removing Employee:", err)
 					} else {
 						cls.CLS()
-						fmt.Println("Doctor removed successfully")
+						fmt.Println("Employee removed successfully")
 					}
 
 				case 4:
@@ -254,16 +262,19 @@ func main() {
 
 	for {
 		fmt.Println("Main Menu:")
-		fmt.Println("1. Customer")
-		fmt.Println("2. Admin")
-		fmt.Println("3. Exit")
+		fmt.Println("1. Secretary")
+		fmt.Println("2. Doctor")
+		fmt.Println("3. Admin")
+		fmt.Println("4. Exit")
 		fmt.Print("Enter your choice: ")
 		fmt.Scanln(&choice)
 
 		switch choice {
 		case 1:
-			customerFunction()
+			secretary()
 		case 2:
+			doctor()
+		case 3:
 			fmt.Print("Enter username: ")
 			fmt.Scanln(&username)
 			fmt.Print("Enter password: ")
@@ -273,7 +284,7 @@ func main() {
 			} else {
 				fmt.Println("Incorrect username or password. Try again.")
 			}
-		case 3:
+		case 4:
 			fmt.Println("Exiting program...")
 			return
 		default:
@@ -338,6 +349,36 @@ func addRoom(roomType string, roomNumber int) error {
 
 	return nil
 }
+func printEmployees() error {
+	db, err := connectDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT hp_id, last_name, first_name, middle_name, profession, specialization from tbl_employees")
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var hpid, lastName, firstName, middleName, profession, specialization string
+
+		err := rows.Scan(&hpid, &lastName, &firstName, &middleName, &profession, &specialization)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("ID: %s | Employees: %s, %s %s | Profession: %s | Specialization: %s\n", hpid, lastName, firstName, middleName, profession, specialization)
+	}
+
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func printDoctors() error {
 	db, err := connectDB()
@@ -346,7 +387,7 @@ func printDoctors() error {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT hp_id, last_name, first_name, middle_name, specialization from tbl_doctors")
+	rows, err := db.Query("SELECT hp_id, last_name, first_name, middle_name, specialization from tbl_employees where profession='Doctor'")
 	if err != nil {
 		return err
 	}
@@ -386,7 +427,7 @@ func generateMiliSec() string {
 	return id
 }
 
-func addDoctor(lastName string, firstName string, middleName string, specialization string) error {
+func addEmployee(lastName string, firstName string, middleName string, profession string, specialization string) error {
 	db, err := connectDB()
 	if err != nil {
 		return err
@@ -396,7 +437,7 @@ func addDoctor(lastName string, firstName string, middleName string, specializat
 	hpid := generateMiliSec()
 	uuid := uuid.New().String()
 
-	_, err = db.Exec("INSERT INTO tbl_doctors (doctor_id, hp_id, last_name, first_name, middle_name, specialization) VALUES (?, ?, ?, ?, ?, ?)", uuid, hpid, lastName, firstName, middleName, specialization)
+	_, err = db.Exec("INSERT INTO tbl_employees (emp_id, hp_id, last_name, first_name, middle_name, profession, specialization) VALUES (?, ?, ?, ?, ?, ?, ?)", uuid, hpid, lastName, firstName, middleName, profession, specialization)
 	if err != nil {
 		return err
 	}
@@ -416,8 +457,8 @@ func deleteRecord(identifier string, table string) error {
 	switch table {
 	case "room":
 		query = "DELETE FROM tbl_rooms WHERE room_number=?"
-	case "doctor":
-		query = "DELETE FROM tbl_doctors WHERE hp_id=?"
+	case "employee":
+		query = "DELETE FROM tbl_employees WHERE hp_id=?"
 	}
 
 	result, err := db.Exec(query, identifier)
@@ -476,7 +517,7 @@ func getId(roomNumber string, doctorID string) (string, error) {
 	var query string
 
 	if doctorID != "" {
-		query = "SELECT doctor_id FROM tbl_doctors WHERE hp_id = ?"
+		query = "SELECT emp_id FROM tbl_employees WHERE hp_id = ?"
 		db.QueryRow(query, doctorID).Scan(&id)
 	} else if roomNumber != "" {
 		query = "SELECT room_id FROM tbl_rooms WHERE room_number = ?"
@@ -495,7 +536,7 @@ func printAssignedDoctor() error {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT CONCAT(d.last_name, ', ', d.first_name, ' ', d.middle_name), d.specialization, r.room_number FROM tbl_room_doctor rd JOIN tbl_doctors d ON rd.doctor_id_fk = d.doctor_id JOIN tbl_rooms r ON rd.room_id_fk = r.room_id")
+	rows, err := db.Query("SELECT CONCAT(e.last_name, ', ', e.first_name, ' ', e.middle_name) AS doctor_full_name, e.specialization, r.room_number FROM tbl_room_doctor rd JOIN tbl_employees e ON rd.doctor_id_fk = e.emp_id JOIN tbl_rooms r ON rd.room_id_fk = r.room_id;")
 	if err != nil {
 		return err
 	}
@@ -511,7 +552,7 @@ func printAssignedDoctor() error {
 			return err
 		}
 
-		fmt.Printf("Doctor Name: %s| Specialization: %s| Room Name: %s\n", drName, specialization, roomNumber)
+		fmt.Printf("Doctor Name: %s| Specialization: %s| Room Number: %s\n", drName, specialization, roomNumber)
 	}
 
 	if err := rows.Err(); err != nil {
