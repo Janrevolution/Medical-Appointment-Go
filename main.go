@@ -14,11 +14,47 @@ import (
 )
 
 func secretary() {
-	fmt.Println("Welcom Sec!")
+	fmt.Print("Secretary!")
 }
 
 func doctor() {
 	fmt.Println("Welcome Doc!")
+}
+func login() {
+	scanner := bufio.NewScanner(os.Stdin)
+	for {
+		fmt.Println("\nLog-in Menu:")
+		var username string
+		fmt.Print("Enter Username (Hit enter to go back): ")
+		scanner.Scan()
+		username = scanner.Text()
+		if username == "" {
+			main()
+		}
+
+		var password string
+		fmt.Print("Enter Password: ")
+		scanner.Scan()
+		password = scanner.Text()
+
+		err, empID := loginUtil(username, password)
+		if err != nil {
+			fmt.Println("Login failed:", err)
+		} else {
+			fmt.Println("Login successful!")
+			fmt.Println("Employee ID:", empID)
+			profession, profErr := GetProfession(empID)
+			if profErr != nil {
+				fmt.Println("Error getting profession:", profErr)
+			} else {
+				if profession == "Doctor" {
+					doctor()
+				} else {
+					secretary()
+				}
+			}
+		}
+	}
 }
 
 func adminFunction() {
@@ -362,19 +398,16 @@ func main() {
 
 	for {
 		fmt.Println("Main Menu:")
-		fmt.Println("1. Secretary")
-		fmt.Println("2. Doctor")
-		fmt.Println("3. Admin")
-		fmt.Println("4. Exit")
+		fmt.Println("1. Log-in")
+		fmt.Println("2. Admin")
+		fmt.Println("3. Exit")
 		fmt.Print("Enter your choice: ")
 		fmt.Scanln(&choice)
 
 		switch choice {
 		case 1:
-			secretary()
+			login()
 		case 2:
-			doctor()
-		case 3:
 			fmt.Print("Enter username: ")
 			fmt.Scanln(&username)
 			fmt.Print("Enter password: ")
@@ -384,7 +417,7 @@ func main() {
 			} else {
 				fmt.Println("Incorrect username or password. Try again.")
 			}
-		case 4:
+		case 3:
 			fmt.Println("Exiting program...")
 			return
 		default:
@@ -521,6 +554,48 @@ func deleteRecord(identifier string, table string) error {
 	return nil
 }
 
+func loginUtil(username, password string) (error, string) {
+	db, err := connectDB()
+	if err != nil {
+		return err, ""
+	}
+	defer db.Close()
+
+	// No Username
+	var storedPassword, empID string
+	err = db.QueryRow("SELECT password, emp_id FROM tbl_accounts WHERE username = ?", username).Scan(&storedPassword, &empID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return errors.New("username not found"), ""
+		}
+		return err, ""
+	}
+
+	// Wrong Password
+	if storedPassword != password {
+		return errors.New("incorrect password"), ""
+	}
+	return nil, empID
+}
+
+func GetProfession(empId string) (string, error) {
+	db, err := connectDB()
+	if err != nil {
+		return "", err
+	}
+	defer db.Close()
+
+	var profession string
+	err = db.QueryRow("SELECT profession FROM tbl_employees WHERE emp_id = ?", empId).Scan(&profession)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", errors.New("profession not found")
+		}
+		return "", err
+	}
+	return profession, nil
+}
+
 func generateMiliSec() string {
 	// Step 1: Declare Variables
 	var id string
@@ -546,7 +621,6 @@ func getId(roomNumber string, doctorID string) (string, error) {
 
 	var id string
 	var query string
-	// DO THIS FIRST LOGIC IS TO GET ID FIRST BEFORE DELETING FROM DOCTOR ROOM
 	if doctorID != "" && roomNumber != "" {
 		// First, retrieve the emp_id from tbl_employees
 		var empID string
