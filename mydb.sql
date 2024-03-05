@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 03, 2024 at 09:05 PM
+-- Generation Time: Mar 05, 2024 at 07:38 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -54,8 +54,8 @@ CREATE TABLE `tbl_employees` (
 --
 
 INSERT INTO `tbl_employees` (`emp_id`, `hp_id`, `last_name`, `first_name`, `middle_name`, `profession`, `specialization`) VALUES
-('1c86ce4d-3732-4cc7-8c74-26c4fec0ca72', 'HPID-1709494313206', 'Villadores', 'Janrev', 'Florig', 'Doctor', 'Cardiologist'),
-('57b195c4-3894-4512-baa8-d62e60a70754', 'HPID-1709494505751', 'Villadores', 'Lance', 'Florig', 'Secretary', 'N/A');
+('67efc7e0-4445-4370-a3dd-55bd2adfe8ae', 'HPID-1709663170820', 'TempLast', 'TempFirst', 'TempMiddle', 'Doctor', 'General Surgery'),
+('7ce88b9f-d80f-4945-a018-e448620d3f76', 'HPID-1709657591169', 'Villadores', 'Janrev Lance', 'Florig', 'Doctor', 'Cardiologist');
 
 -- --------------------------------------------------------
 
@@ -106,7 +106,8 @@ CREATE TABLE `tbl_rooms` (
 --
 
 INSERT INTO `tbl_rooms` (`room_id`, `room_number`, `room_type`) VALUES
-('b5cd0284-6c4d-47bb-89a9-40c5d4bc38e2', '1', 'Basic');
+('86244457-fe8a-4613-bcbc-35dfbf67dfed', '2', 'Basic'),
+('95082190-9d88-483a-88b6-80b8723bc93d', '1', 'Basic');
 
 -- --------------------------------------------------------
 
@@ -125,7 +126,93 @@ CREATE TABLE `tbl_room_doctor` (
 --
 
 INSERT INTO `tbl_room_doctor` (`rd_id`, `doctor_id_fk`, `room_id_fk`) VALUES
-('8b7cf4b3-c4fe-4ce8-93c9-116e128dae14', '1c86ce4d-3732-4cc7-8c74-26c4fec0ca72', 'b5cd0284-6c4d-47bb-89a9-40c5d4bc38e2');
+('309369fd-3510-480e-9734-6c75429dfa1f', '7ce88b9f-d80f-4945-a018-e448620d3f76', '95082190-9d88-483a-88b6-80b8723bc93d'),
+('46435dcb-8fef-488a-89d5-0aa011a15dec', '67efc7e0-4445-4370-a3dd-55bd2adfe8ae', '86244457-fe8a-4613-bcbc-35dfbf67dfed');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_status`
+--
+
+CREATE TABLE `tbl_status` (
+  `status_id` varchar(64) NOT NULL,
+  `status_name` varchar(32) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbl_status`
+--
+
+INSERT INTO `tbl_status` (`status_id`, `status_name`) VALUES
+('4b8b8801-db0e-11ee-9efc-902e16b789a2', 'Available'),
+('4b8b9300-db0e-11ee-9efc-902e16b789a2', 'Unavailable');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_time`
+--
+
+CREATE TABLE `tbl_time` (
+  `time_id` varchar(64) NOT NULL,
+  `start_time` time NOT NULL,
+  `end_time` time NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbl_time`
+--
+
+INSERT INTO `tbl_time` (`time_id`, `start_time`, `end_time`) VALUES
+('88fa065d-db0d-11ee-9efc-902e16b789a2', '01:00:00', '02:00:00'),
+('88fa1a44-db0d-11ee-9efc-902e16b789a2', '02:00:00', '03:00:00'),
+('88fa1ad2-db0d-11ee-9efc-902e16b789a2', '03:00:00', '04:00:00'),
+('88fa1b15-db0d-11ee-9efc-902e16b789a2', '04:00:00', '05:00:00'),
+('88fa1b45-db0d-11ee-9efc-902e16b789a2', '05:00:00', '06:00:00'),
+('88fa1b71-db0d-11ee-9efc-902e16b789a2', '06:00:00', '07:00:00'),
+('88fa1ba0-db0d-11ee-9efc-902e16b789a2', '07:00:00', '08:00:00'),
+('88fa1bc7-db0d-11ee-9efc-902e16b789a2', '08:00:00', '09:00:00'),
+('88fa1bf6-db0d-11ee-9efc-902e16b789a2', '09:00:00', '10:00:00'),
+('88fa1c51-db0d-11ee-9efc-902e16b789a2', '10:00:00', '11:00:00'),
+('88fa1c96-db0d-11ee-9efc-902e16b789a2', '11:00:00', '12:00:00'),
+('88fa1cc2-db0d-11ee-9efc-902e16b789a2', '12:00:00', '13:00:00'),
+('88fa1cef-db0d-11ee-9efc-902e16b789a2', '13:00:00', '14:00:00'),
+('88fa1d1b-db0d-11ee-9efc-902e16b789a2', '14:00:00', '15:00:00'),
+('88fa1d41-db0d-11ee-9efc-902e16b789a2', '15:00:00', '16:00:00'),
+('88fa1d6b-db0d-11ee-9efc-902e16b789a2', '16:00:00', '17:00:00'),
+('88fa1d96-db0d-11ee-9efc-902e16b789a2', '17:00:00', '18:00:00'),
+('88fa1dc0-db0d-11ee-9efc-902e16b789a2', '18:00:00', '19:00:00'),
+('88fa1def-db0d-11ee-9efc-902e16b789a2', '19:00:00', '20:00:00'),
+('88fa1e1c-db0d-11ee-9efc-902e16b789a2', '20:00:00', '21:00:00'),
+('88fa1e44-db0d-11ee-9efc-902e16b789a2', '21:00:00', '22:00:00'),
+('88fa1e71-db0d-11ee-9efc-902e16b789a2', '22:00:00', '23:00:00'),
+('88fa1e9f-db0d-11ee-9efc-902e16b789a2', '23:00:00', '24:00:00'),
+('88fa1ed7-db0d-11ee-9efc-902e16b789a2', '00:00:00', '01:00:00');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_time_doctor`
+--
+
+CREATE TABLE `tbl_time_doctor` (
+  `rd_id` varchar(64) NOT NULL,
+  `time_id` varchar(64) NOT NULL,
+  `status_id_fk` varchar(64) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbl_time_doctor`
+--
+
+INSERT INTO `tbl_time_doctor` (`rd_id`, `time_id`, `status_id_fk`) VALUES
+('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1bf6-db0d-11ee-9efc-902e16b789a2', '4b8b8801-db0e-11ee-9efc-902e16b789a2'),
+('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1c51-db0d-11ee-9efc-902e16b789a2', '4b8b8801-db0e-11ee-9efc-902e16b789a2'),
+('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1d1b-db0d-11ee-9efc-902e16b789a2', '4b8b8801-db0e-11ee-9efc-902e16b789a2'),
+('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1e9f-db0d-11ee-9efc-902e16b789a2', '4b8b8801-db0e-11ee-9efc-902e16b789a2'),
+('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1ed7-db0d-11ee-9efc-902e16b789a2', '4b8b8801-db0e-11ee-9efc-902e16b789a2'),
+('46435dcb-8fef-488a-89d5-0aa011a15dec', '88fa1ba0-db0d-11ee-9efc-902e16b789a2', '4b8b8801-db0e-11ee-9efc-902e16b789a2');
 
 --
 -- Indexes for dumped tables
@@ -174,6 +261,26 @@ ALTER TABLE `tbl_room_doctor`
   ADD KEY `room_id_fk` (`room_id_fk`);
 
 --
+-- Indexes for table `tbl_status`
+--
+ALTER TABLE `tbl_status`
+  ADD PRIMARY KEY (`status_id`);
+
+--
+-- Indexes for table `tbl_time`
+--
+ALTER TABLE `tbl_time`
+  ADD PRIMARY KEY (`time_id`);
+
+--
+-- Indexes for table `tbl_time_doctor`
+--
+ALTER TABLE `tbl_time_doctor`
+  ADD PRIMARY KEY (`rd_id`,`time_id`),
+  ADD KEY `time_id` (`time_id`),
+  ADD KEY `status_id_fk` (`status_id_fk`);
+
+--
 -- Constraints for dumped tables
 --
 
@@ -198,6 +305,14 @@ ALTER TABLE `tbl_reservation_details`
 ALTER TABLE `tbl_room_doctor`
   ADD CONSTRAINT `tbl_room_doctor_ibfk_1` FOREIGN KEY (`doctor_id_fk`) REFERENCES `tbl_employees` (`emp_id`),
   ADD CONSTRAINT `tbl_room_doctor_ibfk_2` FOREIGN KEY (`room_id_fk`) REFERENCES `tbl_rooms` (`room_id`);
+
+--
+-- Constraints for table `tbl_time_doctor`
+--
+ALTER TABLE `tbl_time_doctor`
+  ADD CONSTRAINT `tbl_time_doctor_ibfk_1` FOREIGN KEY (`rd_id`) REFERENCES `tbl_room_doctor` (`rd_id`),
+  ADD CONSTRAINT `tbl_time_doctor_ibfk_2` FOREIGN KEY (`time_id`) REFERENCES `tbl_time` (`time_id`),
+  ADD CONSTRAINT `tbl_time_doctor_ibfk_3` FOREIGN KEY (`status_id_fk`) REFERENCES `tbl_status` (`status_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
