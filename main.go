@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/MasterDimmy/go-cls"
@@ -14,7 +15,90 @@ import (
 )
 
 func secretary() {
-	fmt.Print("Secretary!")
+	scanner := bufio.NewScanner(os.Stdin)
+	var choice int
+	var err error
+	for {
+		fmt.Println("\nSecretary Menu:")
+		fmt.Println("1. Patients")
+		fmt.Println("2. Reservation")
+		fmt.Println("3. Go Back")
+		fmt.Print("Enter your choice: ")
+		fmt.Scanln(&choice)
+
+		switch choice {
+		case 1:
+			fmt.Println("\nPatient Menu:")
+			fmt.Println("1. Add Patient")
+			fmt.Println("2. Edit Patient")
+			fmt.Println("3. Go back to Admin Menu")
+			fmt.Print("Enter your choice: ")
+			fmt.Scanln(&choice)
+			switch choice {
+			case 1:
+				var lastName, firstName, middleName, gender string
+				var age int
+
+				fmt.Print("Enter Last Name: ")
+				scanner.Scan()
+				lastName = scanner.Text()
+
+				fmt.Print("Enter First Name: ")
+				scanner.Scan()
+				firstName = scanner.Text()
+
+				fmt.Print("Enter Middle Name: ")
+				scanner.Scan()
+				middleName = scanner.Text()
+
+				fmt.Print("Enter Age: ")
+				scanner.Scan()
+
+				fmt.Print("Enter Gender: ")
+				scanner.Scan()
+				gender = scanner.Text()
+
+				uuid := uuid.New().String()
+				// query := fmt.Sprintf("INSERT INTO tbl_patients (patient_id, last_name, first_name, middle_name, age, gender) VALUES ('%s', '%s', '%s', '%s', %d, '%s')", uuid, lastName, firstName, middleName, age, gender)
+
+				query := "INSERT INTO tbl_patients (patient_id, last_name, first_name, middle_name, age, gender) VALUES (?, ?, ?, ?, ?, ?)"
+				err := SQLManager(query, uuid, lastName, firstName, middleName, age, gender)
+				if err != nil {
+					fmt.Println("Error executing SQL query: ", err)
+				}
+
+				fmt.Println("Patient added successfully.")
+			case 2:
+				err = printPatients()
+				if err != nil {
+					fmt.Println("Error reading employee data:", err)
+				}
+			case 3:
+				secretary()
+			}
+		}
+	}
+}
+
+func SQLManager(query string, args ...interface{}) error {
+	db, err := connectDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(args...)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func doctor() {
@@ -517,6 +601,16 @@ func addAccount(hp_id string, username string, password string) error {
 	return nil
 }
 
+// func SQLManager(String SQL){
+// 	db, err := connectDB()
+// 	db.Open()
+
+// 	db.Exec(SQL, identifier)
+
+// 	db.Close()
+// 	return nil
+// }
+
 func deleteRecord(identifier string, table string) error {
 	db, err := connectDB()
 	if err != nil {
@@ -810,6 +904,40 @@ func printAccounts() error {
 		}
 
 		fmt.Printf("ID: %s | Username: %s\n", hpid, username)
+	}
+
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func printPatients() error {
+	db, err := connectDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	rows, err := db.Query("SELECT * FROM tbl_patients")
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var patid, lastName, firstName, middleName, gender string
+		var age int
+
+		err := rows.Scan(&patid, &lastName, &firstName, &middleName, &age, &gender)
+		if err != nil {
+			return err
+		}
+
+		patid = strings.Split(patid, "-")[0]
+
+		fmt.Printf("ID: %s | Employee: %s, %s %s | Age: %d | Gender: %s\n", patid, lastName, firstName, middleName, age, gender)
 	}
 
 	if err := rows.Err(); err != nil {
