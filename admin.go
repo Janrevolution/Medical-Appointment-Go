@@ -53,6 +53,7 @@ Enter your Choice: `)
 					fmt.Scanln(&roomNumber)
 
 					// fmt.Printf("You entered room type: %s and room number: %d\n", roomType, roomNumber)
+					
 					// Check if the room number already exists
 					exists, err := checkRoomExists(roomNumber)
 					if err != nil {
@@ -96,19 +97,20 @@ Enter your Choice: `)
 					fmt.Println("Invalid choice. Please try again.")
 				}
 			}
+
 		case 2:
 			for {
 				err = printEmployees()
 				if err != nil {
 					fmt.Println("Error reading employee data:", err)
 				}
-
-				fmt.Println("\nEmployee Menu:")
-				fmt.Println("1. Add Employee")
-				fmt.Println("2. Edit Employee")
-				fmt.Println("3. Delete Employee")
-				fmt.Println("4. Go back to Admin Menu")
-				fmt.Print("Enter your choice: ")
+				fmt.Print(`
+Employee Menu:
+1. Add Employee
+2. Edit Employee
+3. Delete Employee
+4. Go back to Admin Menu
+Enter your Choice: `)
 				fmt.Scanln(&choice)
 
 				switch choice {
@@ -117,25 +119,61 @@ Enter your Choice: `)
 					// To read the whole line, use standard input scanner
 					var lastName, firstName, middleName, profession, specialization string
 
-					fmt.Print("Enter Last Name: ")
-					scanner.Scan()
-					lastName = scanner.Text()
+					for {
+						fmt.Print("Enter Last Name: ")
+						scanner.Scan()
+						lastName = scanner.Text()
+						if !isAlphaOrSpace(lastName) {
+							fmt.Println("Invalid input!")
+						} else {
+							break
+						}
+					}
+	
+					for {
+						fmt.Print("Enter First Name: ")
+						scanner.Scan()
+						firstName = scanner.Text()
+						if !isAlphaOrSpace(firstName) {
+							fmt.Println("Invalid input!")
+						} else {
+							break
+						}
+					}
+					
+					for {
+						fmt.Print("Enter Middle Name: ")
+						scanner.Scan()
+						middleName = scanner.Text()
+						if !isAlphaOrSpace(middleName) {
+							fmt.Println("Invalid input!")
+						} else {
+							break
+						}
+					}
 
-					fmt.Print("Enter First Name: ")
-					scanner.Scan()
-					firstName = scanner.Text()
+					for{
+						fmt.Print("Enter Profession: ")
+						scanner.Scan()
+						profession = scanner.Text()
+						if !isAlphaOrSpace(firstName) {
+							fmt.Println("Invalid input!")
+						} else {
+							break
+						}
+					}
 
-					fmt.Print("Enter Middle Name: ")
-					scanner.Scan()
-					middleName = scanner.Text()
+					for{
+						fmt.Print("Enter Specialization(N/A for non-doctors): ")
+						scanner.Scan()
+						specialization = scanner.Text()
+						if !isAlphaOrSpace(firstName) {
+							fmt.Println("Invalid input!")
+						} else {
+							break
+						}
+					}
 
-					fmt.Print("Enter Profession: ")
-					scanner.Scan()
-					profession = scanner.Text()
-
-					fmt.Print("Enter Specialization(N/A for non-doctors): ")
-					scanner.Scan()
-					specialization = scanner.Text()
 
 					err := addEmployee(lastName, firstName, middleName, profession, specialization)
 					if err != nil {
@@ -148,6 +186,7 @@ Enter your Choice: `)
 
 				case 2:
 					fmt.Println("To be edited soon")
+
 				case 3:
 					var hp_id string
 
@@ -179,6 +218,8 @@ Enter your Choice: `)
 				if err != nil {
 					fmt.Println("Error deleting doctor & room data:", err)
 				}
+
+				
 				fmt.Println("\nAssign Menu:")
 				fmt.Println("1. Assign Doctor Room")
 				fmt.Println("2. Edit Doctor Room")

@@ -6,18 +6,23 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"regexp"
 	"strings"
 	"time"
-
+	"unicode"
+	
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 )
 
-func isAlpha(s string) bool {
-	reg := regexp.MustCompile(`^[a-zA-Z]+$`)
-	return reg.MatchString(s)
+func isAlphaOrSpace(s string) bool {
+	for _, r := range s {
+		if !unicode.IsLetter(r) && !unicode.IsSpace(r) {
+			return false
+		}
+	}
+	return true
 }
+
 
 func secretary() {
 	scanner := bufio.NewScanner(os.Stdin)
@@ -75,7 +80,7 @@ Enter your choice: `)
 					fmt.Print("Enter Last Name: ")
 					scanner.Scan()
 					lastName = scanner.Text()
-					if !isAlpha(lastName) {
+					if !isAlphaOrSpace(lastName) {
 						fmt.Println("Invalid input!")
 					} else {
 						break
@@ -86,7 +91,7 @@ Enter your choice: `)
 					fmt.Print("Enter First Name: ")
 					scanner.Scan()
 					firstName = scanner.Text()
-					if !isAlpha(firstName) {
+					if !isAlphaOrSpace(firstName) {
 						fmt.Println("Invalid input!")
 					} else {
 						break
@@ -97,7 +102,7 @@ Enter your choice: `)
 					fmt.Print("Enter Middle Name: ")
 					scanner.Scan()
 					middleName = scanner.Text()
-					if !isAlpha(middleName) {
+					if !isAlphaOrSpace(middleName) {
 						fmt.Println("Invalid input!")
 					} else {
 						break
