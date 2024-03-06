@@ -389,6 +389,27 @@ Enter your Choice: `)
 					}
 					fmt.Println("Added date for the time of the doctor")
 				case 7:
+					fmt.Println("\nDoctor Unavailable List: ")
+					err = printUnavDoctors()
+					if err != nil {
+						fmt.Println("Error Printing Unavailable Doctors!:", err)
+					}
+
+					var adId string
+
+					fmt.Print("Enter the Doctor's Time ID whose date and time is to be removed: ")
+					fmt.Scanln(&adId)
+					adId, err := getIdTemp(adId, "avail_doctor")
+					if err != nil {
+						fmt.Println("Error getting time doctor ID:", err)
+					}
+
+					query := "DELETE FROM tbl_avail_doctor WHERE ad_id = ?"
+					err = SQLManager(query, adId)
+					if err != nil {
+						fmt.Println("Error executing SQL query: ", err)
+					}
+					fmt.Println("Deleted Date and time to doctor")
 
 				case 8:
 					fmt.Println("Going back to Admin Menu...")

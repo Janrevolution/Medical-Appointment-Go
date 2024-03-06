@@ -330,3 +330,44 @@ func printAssignedDoctorTime() error {
 
 	return nil
 }
+
+func printUnavDoctors() error {
+	db, err := connectDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	rows, err := db.Query(`
+		SELECT e.last_name, e.first_name, e.middle_name, ad.ad_id, DATE_FORMAT(ad.date, '%M %e, %Y') AS formatted_date,
+		t.start_time, t.end_time
+		FROM tbl_employees e
+		JOIN tbl_room_doctor rd ON e.emp_id = rd.doctor_id_fk
+		JOIN tbl_time_doctor td ON rd.rd_id = td.rd_id
+		JOIN tbl_avail_doctor ad ON td.ad_id = ad.ad_id
+		JOIN tbl_time t ON td.time_id = t.time_id;
+	`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var lastName, firstName, middleName, adID, formattedDate, startTime, endTime string
+
+		err := rows.Scan(&lastName, &firstName, &middleName, &adID, &formattedDate, &startTime, &endTime)
+		if err != nil {
+			return err
+		}
+
+		adIDParts := strings.Split(adID, "-")
+
+		fmt.Printf("Doctor Time ID: %s | Doctor: %s, %s, %s | %s | Start Time: %s | End Time: %s\n", adIDParts[0], lastName, firstName, middleName, formattedDate, startTime, endTime)
+	}
+
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
