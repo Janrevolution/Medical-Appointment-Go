@@ -284,8 +284,8 @@ OuterLoop:
 					}
 					fmt.Println(timeId)
 
-					query := "INSERT INTO tbl_time_doctor (rd_id, time_id, status_id_fk) VALUES (?, ?, ?)"
-					err = SQLManager(query, doctorId, timeId, "4b8b8801-db0e-11ee-9efc-902e16b789a2")
+					query := "INSERT INTO tbl_time_doctor (rd_id, time_id) VALUES (?, ?)"
+					err = SQLManager(query, doctorId, timeId)
 					if err != nil {
 						fmt.Println("Error executing SQL query: ", err)
 					}

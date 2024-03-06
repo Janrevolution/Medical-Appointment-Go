@@ -2,7 +2,11 @@
 
 1. Using of Visual Studio Code
 2. Download and install [Go](https://go.dev/doc/install). Add to Path in environment variables
-3. Place the projects under ```xampp\htdocs``` as we are using mysql
+3. Place the project under ```xampp\htdocs``` as we are using mysql in terminal with ```git clone (git link)```
+4. Download the sql file and transfer it to ```xampp\mysql\bin```
+5. In the terminal create a database named ```mydb```
+6. Import the downloade database to your created database using ```mysql -u root mydb < mydb.sql```
+7. Done
 
 # Creation of tables [FOR DOCUMENTATION]
 ```mysql
@@ -69,11 +73,20 @@ Create table tbl_status(
 Create table tbl_time_doctor(
     rd_id varchar(64), 
     time_id varchar(64),
-    status_id_fk varchar(64),
     primary key(rd_id, time_id),
     foreign key(rd_id) references tbl_room_doctor(rd_id),
-    foreign key(time_id) references tbl_time(time_id),
-    foreign key(status_id_fk) references tbl_status(status_id)
+    foreign key(time_id) references tbl_time(time_id)
+);
+
+Create table tbl_avail_doctor(
+    rd_id varchar(64),
+    date date,
+    time_id varchar(64),
+    status_id varchar(64),
+    primary key(rd_id, date, time_id, status_id),
+    foreign key (rd_id) references tbl_time_doctor(rd_id),
+    foreign key (time_id) references tbl_time(time_id),
+    foreign key (status_id) references tbl_status(status_id)
 );
 
 # Query for tbl_time

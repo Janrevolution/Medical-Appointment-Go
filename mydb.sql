@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 05, 2024 at 07:38 PM
+-- Generation Time: Mar 06, 2024 at 07:34 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -31,6 +31,19 @@ CREATE TABLE `tbl_accounts` (
   `emp_id` varchar(64) NOT NULL,
   `username` varchar(32) NOT NULL,
   `password` varchar(32) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_avail_doctor`
+--
+
+CREATE TABLE `tbl_avail_doctor` (
+  `rd_id` varchar(64) NOT NULL,
+  `date` date NOT NULL,
+  `time_id` varchar(64) NOT NULL,
+  `status_id` varchar(64) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -198,21 +211,15 @@ INSERT INTO `tbl_time` (`time_id`, `start_time`, `end_time`) VALUES
 
 CREATE TABLE `tbl_time_doctor` (
   `rd_id` varchar(64) NOT NULL,
-  `time_id` varchar(64) NOT NULL,
-  `status_id_fk` varchar(64) DEFAULT NULL
+  `time_id` varchar(64) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_time_doctor`
 --
 
-INSERT INTO `tbl_time_doctor` (`rd_id`, `time_id`, `status_id_fk`) VALUES
-('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1bf6-db0d-11ee-9efc-902e16b789a2', '4b8b8801-db0e-11ee-9efc-902e16b789a2'),
-('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1c51-db0d-11ee-9efc-902e16b789a2', '4b8b8801-db0e-11ee-9efc-902e16b789a2'),
-('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1d1b-db0d-11ee-9efc-902e16b789a2', '4b8b8801-db0e-11ee-9efc-902e16b789a2'),
-('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1e9f-db0d-11ee-9efc-902e16b789a2', '4b8b8801-db0e-11ee-9efc-902e16b789a2'),
-('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1ed7-db0d-11ee-9efc-902e16b789a2', '4b8b8801-db0e-11ee-9efc-902e16b789a2'),
-('46435dcb-8fef-488a-89d5-0aa011a15dec', '88fa1ba0-db0d-11ee-9efc-902e16b789a2', '4b8b8801-db0e-11ee-9efc-902e16b789a2');
+INSERT INTO `tbl_time_doctor` (`rd_id`, `time_id`) VALUES
+('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1def-db0d-11ee-9efc-902e16b789a2');
 
 --
 -- Indexes for dumped tables
@@ -223,6 +230,14 @@ INSERT INTO `tbl_time_doctor` (`rd_id`, `time_id`, `status_id_fk`) VALUES
 --
 ALTER TABLE `tbl_accounts`
   ADD PRIMARY KEY (`emp_id`);
+
+--
+-- Indexes for table `tbl_avail_doctor`
+--
+ALTER TABLE `tbl_avail_doctor`
+  ADD PRIMARY KEY (`rd_id`,`date`,`time_id`,`status_id`),
+  ADD KEY `time_id` (`time_id`),
+  ADD KEY `status_id` (`status_id`);
 
 --
 -- Indexes for table `tbl_employees`
@@ -277,8 +292,7 @@ ALTER TABLE `tbl_time`
 --
 ALTER TABLE `tbl_time_doctor`
   ADD PRIMARY KEY (`rd_id`,`time_id`),
-  ADD KEY `time_id` (`time_id`),
-  ADD KEY `status_id_fk` (`status_id_fk`);
+  ADD KEY `time_id` (`time_id`);
 
 --
 -- Constraints for dumped tables
@@ -289,6 +303,14 @@ ALTER TABLE `tbl_time_doctor`
 --
 ALTER TABLE `tbl_accounts`
   ADD CONSTRAINT `tbl_accounts_ibfk_1` FOREIGN KEY (`emp_id`) REFERENCES `tbl_employees` (`emp_id`);
+
+--
+-- Constraints for table `tbl_avail_doctor`
+--
+ALTER TABLE `tbl_avail_doctor`
+  ADD CONSTRAINT `tbl_avail_doctor_ibfk_1` FOREIGN KEY (`rd_id`) REFERENCES `tbl_time_doctor` (`rd_id`),
+  ADD CONSTRAINT `tbl_avail_doctor_ibfk_2` FOREIGN KEY (`time_id`) REFERENCES `tbl_time` (`time_id`),
+  ADD CONSTRAINT `tbl_avail_doctor_ibfk_3` FOREIGN KEY (`status_id`) REFERENCES `tbl_status` (`status_id`);
 
 --
 -- Constraints for table `tbl_reservation_details`
@@ -311,8 +333,7 @@ ALTER TABLE `tbl_room_doctor`
 --
 ALTER TABLE `tbl_time_doctor`
   ADD CONSTRAINT `tbl_time_doctor_ibfk_1` FOREIGN KEY (`rd_id`) REFERENCES `tbl_room_doctor` (`rd_id`),
-  ADD CONSTRAINT `tbl_time_doctor_ibfk_2` FOREIGN KEY (`time_id`) REFERENCES `tbl_time` (`time_id`),
-  ADD CONSTRAINT `tbl_time_doctor_ibfk_3` FOREIGN KEY (`status_id_fk`) REFERENCES `tbl_status` (`status_id`);
+  ADD CONSTRAINT `tbl_time_doctor_ibfk_2` FOREIGN KEY (`time_id`) REFERENCES `tbl_time` (`time_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

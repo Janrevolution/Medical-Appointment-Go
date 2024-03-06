@@ -273,13 +273,11 @@ func printAssignedDoctorTime() error {
 
 	rows, err := db.Query(`
 		SELECT e.last_name, e.first_name, e.middle_name,
-			CONCAT(DATE_FORMAT(t.start_time, '%h:%i:%s %p'), ' - ', DATE_FORMAT(t.end_time, '%h:%i:%s %p')) AS time_slot,
-			s.status_name
+			CONCAT(DATE_FORMAT(t.start_time, '%h:%i:%s %p'), ' - ', DATE_FORMAT(t.end_time, '%h:%i:%s %p')) AS time_slot
 		FROM tbl_employees e
 		JOIN tbl_room_doctor rd ON e.emp_id = rd.doctor_id_fk
 		JOIN tbl_time_doctor td ON rd.rd_id = td.rd_id
 		JOIN tbl_time t ON td.time_id = t.time_id
-		JOIN tbl_status s ON td.status_id_fk = s.status_id
 		ORDER BY e.last_name, e.first_name, e.middle_name, t.start_time;
 	`)
 	if err != nil {
@@ -291,9 +289,9 @@ func printAssignedDoctorTime() error {
 	var isNewDoctor bool = true
 
 	for rows.Next() {
-		var lastName, firstName, middleName, timeSlot, statusName string
+		var lastName, firstName, middleName, timeSlot string
 
-		err := rows.Scan(&lastName, &firstName, &middleName, &timeSlot, &statusName)
+		err := rows.Scan(&lastName, &firstName, &middleName, &timeSlot)
 		if err != nil {
 			return err
 		}
@@ -306,7 +304,7 @@ func printAssignedDoctorTime() error {
 			fmt.Printf("Doctor: %s, %s %s\n", lastName, firstName, middleName)
 		}
 
-		fmt.Printf("\t- %s (%s)\n", timeSlot, statusName)
+		fmt.Printf("\t- %s \n", timeSlot)
 
 		// Upate Doctor Name
 		prevLastName = lastName
