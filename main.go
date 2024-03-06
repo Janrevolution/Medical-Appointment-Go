@@ -8,9 +8,9 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"strconv"
 	"time"
 
-	"github.com/MasterDimmy/go-cls"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 )
@@ -42,8 +42,7 @@ Enter your choice: `)
 			fmt.Print(`
 Patient Menu:
 1. Add Patients
-2. Edit Patient
-3. Go Back to Admin Menu
+2. Go Back to Admin Menu
 Enter your choice: `)
 
 			_, err = fmt.Scanln(&choice)
@@ -52,8 +51,22 @@ Enter your choice: `)
 				continue
 			}
 
+			fmt.Println("\nPatient Menu:")
+			err = printPatients()
+			if err != nil {
+				fmt.Println("Error reading patient data:", err)
+			}
+			fmt.Println("1. Add Patient")
+			fmt.Println("2. Go back to Admin Menu")
+			fmt.Print("Enter your choice: ")
+			fmt.Scanln(&choice)
 			switch choice {
 			case 1:
+				err = printPatients()
+				if err != nil {
+					fmt.Println("Error reading patient data:", err)
+				}
+
 				var lastName, firstName, middleName, gender string
 				var age int
 
@@ -113,16 +126,39 @@ Enter your choice: `)
 						break
 					}
 				}
+				fmt.Print("Enter Last Name: ")
+				scanner.Scan()
+				lastName = scanner.Text()
+
+				fmt.Print("Enter First Name: ")
+				scanner.Scan()
+				firstName = scanner.Text()
+
+				fmt.Print("Enter Middle Name: ")
+				scanner.Scan()
+				middleName = scanner.Text()
+
+				fmt.Print("Enter Age: ")
+				scanner.Scan()
+				ageStr := scanner.Text()
+				age, err := strconv.Atoi(ageStr)
+				if err != nil {
+					fmt.Println("Error converting age to integer:", err)
+					return
+				}
+
+				fmt.Print("Enter Gender: ")
+				scanner.Scan()
+				gender = scanner.Text()
 
 				uuid := uuid.New().String()
 
 				query := "INSERT INTO tbl_patients (patient_id, last_name, first_name, middle_name, age, gender) VALUES (?, ?, ?, ?, ?, ?)"
-				err := SQLManager(query, uuid, lastName, firstName, middleName, age, gender)
+				err = SQLManager(query, uuid, lastName, firstName, middleName, age, gender)
 				if err != nil {
 					fmt.Println("Error executing SQL query: ", err)
 					continue
 				}
-
 				fmt.Println("Patient added successfully.")
 			case 2:
 				err = printPatients()
@@ -133,6 +169,16 @@ Enter your choice: `)
 			case 3:
 				secretary()
 			}
+		case 2:
+			// fmt.Println("1. Add Reservation")
+			// fmt.Println("2. Edit Reservation")
+			// fmt.Println("2. Delete Reservation")
+			// fmt.Print("Enter your choice: ")
+			// fmt.Scanln(&choice)
+			// switch choice {
+			// case 1:
+
+			// }
 		}
 	}
 }
@@ -195,341 +241,6 @@ func login() {
 					secretary()
 				}
 			}
-		}
-	}
-}
-
-func adminFunction() {
-	scanner := bufio.NewScanner(os.Stdin)
-	var choice int
-	var err error
-OuterLoop:
-	for {
-		fmt.Println("\nAdmin Menu:")
-		fmt.Println("1. Rooms")
-		fmt.Println("2. Employee function")
-		fmt.Println("3. Assign Doctor")
-		fmt.Println("4. Create Account")
-		fmt.Println("5. Go back to Main Menu")
-		fmt.Print("Enter your choice: ")
-		fmt.Scanln(&choice)
-		switch choice {
-		case 1:
-			for {
-				err = printRooms()
-				if err != nil {
-					fmt.Println("Error reading room data:", err)
-				}
-
-				fmt.Println("\nRooms Menu:")
-				fmt.Println("1. Add room")
-				fmt.Println("2. Edit room")
-				fmt.Println("3. Delete room")
-				fmt.Println("4. Go back to Admin Menu")
-				fmt.Print("Enter your choice: ")
-				fmt.Scanln(&choice)
-
-				switch choice {
-				case 1:
-					// To read the whole line, use standard input scanner
-					var roomType string
-					fmt.Print("Enter the room type: ")
-					scanner.Scan()
-					roomType = scanner.Text()
-
-					var roomNumber int
-					fmt.Print("Enter the room number: ")
-					fmt.Scanln(&roomNumber)
-
-					// fmt.Printf("You entered room type: %s and room number: %d\n", roomType, roomNumber)
-
-					err := addRoom(roomType, roomNumber)
-					if err != nil {
-						cls.CLS()
-						fmt.Println("Error creating user:", err)
-					} else {
-						cls.CLS()
-						fmt.Println("User created successfully")
-					}
-
-				case 2:
-					fmt.Println("To be edited soon")
-				case 3:
-					var roomNumber string
-					fmt.Print("Enter the room number to be deleted: ")
-					fmt.Scanln(&roomNumber)
-
-					err := deleteRecord(roomNumber, "room")
-					if err != nil {
-						cls.CLS()
-						fmt.Println("Error deleting room:", err)
-					} else {
-						cls.CLS()
-						fmt.Println("Room deleted successfully")
-					}
-
-				case 4:
-					fmt.Println("Going back to Admin Menu...")
-					continue OuterLoop
-				default:
-					fmt.Println("Invalid choice. Please try again.")
-				}
-			}
-		case 2:
-			for {
-				err = printEmployees()
-				if err != nil {
-					fmt.Println("Error reading employee data:", err)
-				}
-
-				fmt.Println("\nEmployee Menu:")
-				fmt.Println("1. Add Employee")
-				fmt.Println("2. Edit Employee")
-				fmt.Println("3. Delete Employee")
-				fmt.Println("4. Go back to Admin Menu")
-				fmt.Print("Enter your choice: ")
-				fmt.Scanln(&choice)
-
-				switch choice {
-				case 1:
-
-					// To read the whole line, use standard input scanner
-					var lastName, firstName, middleName, profession, specialization string
-
-					fmt.Print("Enter Last Name: ")
-					scanner.Scan()
-					lastName = scanner.Text()
-
-					fmt.Print("Enter First Name: ")
-					scanner.Scan()
-					firstName = scanner.Text()
-
-					fmt.Print("Enter Middle Name: ")
-					scanner.Scan()
-					middleName = scanner.Text()
-
-					fmt.Print("Enter Profession: ")
-					scanner.Scan()
-					profession = scanner.Text()
-
-					fmt.Print("Enter Specialization(N/A for non-doctors): ")
-					scanner.Scan()
-					specialization = scanner.Text()
-
-					err := addEmployee(lastName, firstName, middleName, profession, specialization)
-					if err != nil {
-						cls.CLS()
-						fmt.Println("Error creating user:", err)
-					} else {
-						cls.CLS()
-						fmt.Println("User created successfully")
-					}
-
-				case 2:
-					fmt.Println("To be edited soon")
-				case 3:
-					var hp_id string
-
-					fmt.Print("Enter Employee ID to be deleted: ")
-					scanner.Scan()
-					hp_id = scanner.Text()
-
-					err := deleteRecord(hp_id, "employee")
-					if err != nil {
-						cls.CLS()
-						fmt.Println("Error removing Employee:", err)
-					} else {
-						cls.CLS()
-						fmt.Println("Employee removed successfully")
-					}
-
-				case 4:
-					fmt.Println("Going back to Admin Menu...")
-					continue OuterLoop
-				default:
-					fmt.Println("Invalid choice. Please try again.")
-				}
-			}
-		case 3:
-			for {
-
-				fmt.Println("\nAssigned Doctors: ")
-				err = printAssignedDoctor()
-				if err != nil {
-					fmt.Println("Error deleting doctor & room data:", err)
-				}
-				fmt.Println("\nAssign Menu:")
-				fmt.Println("1. Assign Doctor")
-				fmt.Println("2. Edit Doctor")
-				fmt.Println("3. Remove Doctor assignment")
-				fmt.Println("4. Go back to Admin Menu")
-				fmt.Print("Enter your choice: ")
-				fmt.Scanln(&choice)
-
-				switch choice {
-				case 1:
-					fmt.Println("Room Data:")
-					err = printRooms()
-					if err != nil {
-						fmt.Println("Error reading room data:", err)
-					}
-
-					fmt.Println("\nDoctor Data:")
-					err = printDoctors()
-					if err != nil {
-						fmt.Println("Error reading doctor data:", err)
-					}
-
-					fmt.Println("\nAssigned Doctors: ")
-					err = printAssignedDoctor()
-					if err != nil {
-						fmt.Println("Error deleting doctor & room data:", err)
-					}
-
-					// To read the whole line, use standard input scanner
-					var roomNumber string
-					fmt.Print("Enter room number: ")
-					scanner.Scan()
-					roomNumber = scanner.Text()
-
-					var doctorId string
-					fmt.Print("Enter doctor ID: ")
-					scanner.Scan()
-					doctorId = scanner.Text()
-
-					err := assignDoctor(roomNumber, doctorId)
-					if err != nil {
-						cls.CLS()
-						fmt.Println("Error assigning a doctor:", err)
-					} else {
-						cls.CLS()
-						fmt.Println("Successfully assigned doctor to a room!")
-					}
-
-				case 2:
-					fmt.Println("To be edited soon")
-				case 3:
-					fmt.Println("\nAssigned Doctors: ")
-					err = printAssignedDoctor()
-					if err != nil {
-						fmt.Println("Error deleting doctor & room data:", err)
-					}
-
-					var roomNumber string
-					fmt.Print("Enter the room number to be deleted: ")
-					fmt.Scanln(&roomNumber)
-
-					var drID string
-					fmt.Print("Enter Doctors ID to be deleted: ")
-					fmt.Scanln(&drID)
-
-					rd_id, err := getId(roomNumber, drID)
-					if err != nil {
-						fmt.Println("Error getting ID:", err)
-						return
-					}
-
-					err = deleteRecord(rd_id, "assignment")
-					if err != nil {
-						cls.CLS()
-						fmt.Println("Error deleting assignment:", err)
-					} else {
-						cls.CLS()
-						fmt.Println("Room deleted assignment")
-					}
-
-				case 4:
-					fmt.Println("Going back to Admin Menu...")
-					continue OuterLoop
-				default:
-					fmt.Println("Invalid choice. Please try again.")
-				}
-			}
-		case 4:
-			for {
-				fmt.Println("Accounts :")
-				err = printAccounts()
-				if err != nil {
-					fmt.Println("Error reading room data:", err)
-				}
-
-				fmt.Println("\nAccount Creation")
-				fmt.Println("1. Create Account")
-				fmt.Println("2. Update Account")
-				fmt.Println("3. Delete Account")
-				fmt.Println("4. Go back to Admin Menu")
-				fmt.Print("Enter your choice: ")
-				fmt.Scanln(&choice)
-
-				switch choice {
-				case 1:
-					fmt.Println("Accounts :")
-					err = printAccounts()
-					if err != nil {
-						fmt.Println("Error reading room data:", err)
-					}
-
-					fmt.Println("\nList of Employees: ")
-					err = printEmployees()
-					if err != nil {
-						fmt.Println("Error reading employee data:", err)
-					}
-
-					// To read the whole line, use standard input scanner
-					var hp_id string
-					fmt.Print("Enter ID number: ")
-					scanner.Scan()
-					hp_id = scanner.Text()
-
-					var username string
-					fmt.Print("Enter username: ")
-					scanner.Scan()
-					username = scanner.Text()
-
-					var password string
-					fmt.Print("Enter password: ")
-					scanner.Scan()
-					password = scanner.Text()
-
-					// fmt.Printf("You entered room type: %s and room number: %d\n", roomType, roomNumber)
-
-					err := addAccount(hp_id, username, password)
-					if err != nil {
-						cls.CLS()
-						fmt.Println("Error creation:", err)
-					} else {
-						cls.CLS()
-						fmt.Println("Successfully created an account!")
-					}
-
-				case 2:
-					fmt.Println("To be edited soon")
-				case 3:
-					var accountId string
-					fmt.Print("Enter the ID to be deleted: ")
-					fmt.Scanln(&accountId)
-
-					err := deleteRecord(accountId, "account")
-					if err != nil {
-						cls.CLS()
-						fmt.Println("Error deleting room:", err)
-					} else {
-						cls.CLS()
-						fmt.Println("Account deleted successfully")
-					}
-
-				case 4:
-					fmt.Println("Going back to Admin Menu...")
-					continue OuterLoop
-				default:
-					fmt.Println("Invalid choice. Please try again.")
-				}
-			}
-		case 5:
-			fmt.Println("Going back to Main Menu...")
-			return
-		default:
-			fmt.Println("Invalid choice. Please try again.")
 		}
 	}
 }
@@ -658,16 +369,6 @@ func addAccount(hp_id string, username string, password string) error {
 
 	return nil
 }
-
-// func SQLManager(String SQL){
-// 	db, err := connectDB()
-// 	db.Open()
-
-// 	db.Exec(SQL, identifier)
-
-// 	db.Close()
-// 	return nil
-// }
 
 func deleteRecord(identifier string, table string) error {
 	db, err := connectDB()
@@ -813,194 +514,26 @@ func getId(roomNumber string, doctorID string) (string, error) {
 	return id, nil
 }
 
-func printRooms() error {
+func getIdTemp(cutId, table string) (string, error) {
 	db, err := connectDB()
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT room_number, room_type FROM tbl_rooms")
+	var id string
+
+	if table == "room_doctor" {
+		query := "SELECT rd_id FROM tbl_room_doctor WHERE LEFT(rd_id, 8) = ?"
+		err = db.QueryRow(query, cutId).Scan(&id)
+	} else if table == "tbl_time" {
+		query := "SELECT time_id FROM tbl_time WHERE LEFT(time_id, 8) = ?"
+		err = db.QueryRow(query, cutId).Scan(&id)
+	}
+
 	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var roomNumber string
-		var capacity string
-
-		err := rows.Scan(&roomNumber, &capacity)
-		if err != nil {
-			return err
-		}
-
-		fmt.Printf("Room Number: %s, Capacity: %s\n", roomNumber, capacity)
+		return "", err
 	}
 
-	if err := rows.Err(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func printEmployees() error {
-	db, err := connectDB()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	rows, err := db.Query("SELECT hp_id, last_name, first_name, middle_name, profession, specialization from tbl_employees")
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var hpid, lastName, firstName, middleName, profession, specialization string
-
-		err := rows.Scan(&hpid, &lastName, &firstName, &middleName, &profession, &specialization)
-		if err != nil {
-			return err
-		}
-
-		fmt.Printf("ID: %s | Employees: %s, %s %s | Profession: %s | Specialization: %s\n", hpid, lastName, firstName, middleName, profession, specialization)
-	}
-
-	if err := rows.Err(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func printDoctors() error {
-	db, err := connectDB()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	rows, err := db.Query("SELECT hp_id, last_name, first_name, middle_name, specialization from tbl_employees where profession='Doctor'")
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var hpid, lastName, firstName, middleName, specialization string
-
-		err := rows.Scan(&hpid, &lastName, &firstName, &middleName, &specialization)
-		if err != nil {
-			return err
-		}
-
-		fmt.Printf("ID: %s | Doctor: %s, %s %s Specialization: %s\n", hpid, lastName, firstName, middleName, specialization)
-	}
-
-	if err := rows.Err(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func printAssignedDoctor() error {
-	db, err := connectDB()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	rows, err := db.Query("SELECT CONCAT(e.last_name, ', ', e.first_name, ' ', e.middle_name) AS doctor_full_name, e.specialization, r.room_number FROM tbl_room_doctor rd JOIN tbl_employees e ON rd.doctor_id_fk = e.emp_id JOIN tbl_rooms r ON rd.room_id_fk = r.room_id;")
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var drName string
-		var roomNumber string
-		var specialization string
-
-		err := rows.Scan(&drName, &specialization, &roomNumber)
-		if err != nil {
-			return err
-		}
-
-		fmt.Printf("Doctor Name: %s| Specialization: %s| Room Number: %s\n", drName, specialization, roomNumber)
-	}
-
-	if err := rows.Err(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func printAccounts() error {
-	db, err := connectDB()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	rows, err := db.Query("SELECT e.hp_id, a.username FROM tbl_accounts a JOIN tbl_employees e ON a.emp_id = e.emp_id;")
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var hpid, username string
-
-		err := rows.Scan(&hpid, &username)
-		if err != nil {
-			return err
-		}
-
-		fmt.Printf("ID: %s | Username: %s\n", hpid, username)
-	}
-
-	if err := rows.Err(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func printPatients() error {
-	db, err := connectDB()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	rows, err := db.Query("SELECT * FROM tbl_patients")
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var patid, lastName, firstName, middleName, gender string
-		var age int
-
-		err := rows.Scan(&patid, &lastName, &firstName, &middleName, &age, &gender)
-		if err != nil {
-			return err
-		}
-
-		patid = strings.Split(patid, "-")[0]
-
-		fmt.Printf("ID: %s | Employee: %s, %s %s | Age: %d | Gender: %s\n", patid, lastName, firstName, middleName, age, gender)
-	}
-
-	if err := rows.Err(); err != nil {
-		return err
-	}
-
-	return nil
+	return id, nil
 }
