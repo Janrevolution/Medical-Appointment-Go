@@ -339,13 +339,15 @@ func printUnavDoctors() error {
 	defer db.Close()
 
 	rows, err := db.Query(`
-		SELECT e.last_name, e.first_name, e.middle_name, ad.ad_id, DATE_FORMAT(ad.date, '%M %e, %Y') AS formatted_date,
-		t.start_time, t.end_time
-		FROM tbl_employees e
-		JOIN tbl_room_doctor rd ON e.emp_id = rd.doctor_id_fk
-		JOIN tbl_time_doctor td ON rd.rd_id = td.rd_id
-		JOIN tbl_avail_doctor ad ON td.ad_id = ad.ad_id
-		JOIN tbl_time t ON td.time_id = t.time_id;
+			SELECT e.last_name, e.first_name, e.middle_name, ad.ad_id, 
+			DATE_FORMAT(ad.date, '%M %e, %Y') AS formatted_date,
+			DATE_FORMAT(t.start_time, '%h:%i:%s %p') AS start_time,
+			DATE_FORMAT(t.end_time, '%h:%i:%s %p') AS end_time
+			FROM tbl_employees e
+			JOIN tbl_room_doctor rd ON e.emp_id = rd.doctor_id_fk
+			JOIN tbl_time_doctor td ON rd.rd_id = td.rd_id
+			JOIN tbl_avail_doctor ad ON td.ad_id = ad.ad_id
+			JOIN tbl_time t ON td.time_id = t.time_id;
 	`)
 	if err != nil {
 		return err

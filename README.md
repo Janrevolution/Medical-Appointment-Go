@@ -35,15 +35,18 @@ Create table tbl_patients(
     gender varchar(6) not null
 );
 
-Create table tbl_reservation_details(
-    reserve_id varchar(64) primary key,
+Create table tbl_appointment_details(
+    reserve_id varchar(64),
     patient_id_fk varchar(64),
-    rd_id_fk varchar(64),
-    description varchar(256) not null,
+    rd_id varchar(64),
     date date not null,
     time time not null,
+    secretary_id varchar(64),
+    description varchar(256),
+    primary key (reserve_id, date, time),
     foreign key (patient_id_fk) references tbl_patients(patient_id),
-    foreign key (rd_id_fk) references tbl_room_doctor(rd_id)
+    foreign key (rd_id) references tbl_time_doctor(rd_id),
+    foreign key(secretary_id) references tbl_accounts(emp_id)
 );
 
 Create table tbl_accounts(

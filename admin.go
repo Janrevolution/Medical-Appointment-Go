@@ -224,10 +224,9 @@ Enter your Choice: `)
 				fmt.Println("2. Edit Doctor Room")
 				fmt.Println("3. Remove Doctor Room")
 				fmt.Println("4. Assign Doctor Time")
-				fmt.Println("5. Remove Doctor Time")
-				fmt.Println("6. Add Unavailable Doctor Time")
-				fmt.Println("7. Remove Unavailable Doctor Time")
-				fmt.Println("8. Go back to Admin Menu")
+				fmt.Println("5. Add Unavailable Doctor Time")
+				fmt.Println("6. Remove Unavailable Doctor Time")
+				fmt.Println("7. Go back to Admin Menu")
 				fmt.Print("Enter your choice: ")
 				fmt.Scanln(&choice)
 
@@ -348,28 +347,6 @@ Enter your Choice: `)
 						fmt.Println("Error Printing Assigned Doctors!:", err)
 					}
 
-					var adId string
-
-					fmt.Print("Enter the Doctor's Time ID whose time to be removed: ")
-					fmt.Scanln(&adId)
-					adId, err := getIdTemp(adId, "time_doctor")
-					if err != nil {
-						fmt.Println("Error getting time doctor ID:", err)
-					}
-
-					query := "DELETE FROM tbl_time_doctor WHERE ad_id = ?"
-					err = SQLManager(query, adId)
-					if err != nil {
-						fmt.Println("Error executing SQL query: ", err)
-					}
-					fmt.Println("Deleted time to doctor")
-				case 6:
-					fmt.Println("\nAssigned Doctor Room with Time List: ")
-					err = printAssignedDoctorTime()
-					if err != nil {
-						fmt.Println("Error Printing Assigned Doctors!:", err)
-					}
-
 					var adId, date string
 
 					fmt.Print("Enter the Doctor's Time ID whose time to be unavailable: ")
@@ -387,8 +364,8 @@ Enter your Choice: `)
 					if err != nil {
 						fmt.Println("Error executing SQL query: ", err)
 					}
-					fmt.Println("Added date for the time of the doctor")
-				case 7:
+					fmt.Println("Successfully made the Time to be unavailable!")
+				case 6:
 					fmt.Println("\nDoctor Unavailable List: ")
 					err = printUnavDoctors()
 					if err != nil {
@@ -409,9 +386,8 @@ Enter your Choice: `)
 					if err != nil {
 						fmt.Println("Error executing SQL query: ", err)
 					}
-					fmt.Println("Deleted Date and time to doctor")
-
-				case 8:
+					fmt.Println("Made the slot available again!")
+				case 7:
 					fmt.Println("Going back to Admin Menu...")
 					continue OuterLoop
 				default:
