@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 06, 2024 at 02:18 PM
+-- Generation Time: Mar 06, 2024 at 10:35 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -33,6 +33,36 @@ CREATE TABLE `tbl_accounts` (
   `password` varchar(32) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `tbl_accounts`
+--
+
+INSERT INTO `tbl_accounts` (`emp_id`, `username`, `password`) VALUES
+('2e13f66a-6197-4e03-81fc-e3e12dba841f', 'asd', 'asd');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_appointment_details`
+--
+
+CREATE TABLE `tbl_appointment_details` (
+  `reserve_id` varchar(64) NOT NULL,
+  `patient_id_fk` varchar(64) DEFAULT NULL,
+  `rd_id` varchar(64) DEFAULT NULL,
+  `date` date NOT NULL,
+  `time` varchar(64) NOT NULL,
+  `secretary_id` varchar(64) DEFAULT NULL,
+  `description` varchar(256) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbl_appointment_details`
+--
+
+INSERT INTO `tbl_appointment_details` (`reserve_id`, `patient_id_fk`, `rd_id`, `date`, `time`, `secretary_id`, `description`) VALUES
+('dc5063c6-7bc6-460c-a923-a5242f00c791', '62c17a1f-88a0-43e3-96ea-cbc5a1d899a1', '309369fd-3510-480e-9734-6c75429dfa1f', '2024-03-07', '88fa1e1c-db0d-11ee-9efc-902e16b789a2', '2e13f66a-6197-4e03-81fc-e3e12dba841f', 'Headache');
+
 -- --------------------------------------------------------
 
 --
@@ -43,6 +73,13 @@ CREATE TABLE `tbl_avail_doctor` (
   `ad_id` varchar(64) NOT NULL,
   `date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbl_avail_doctor`
+--
+
+INSERT INTO `tbl_avail_doctor` (`ad_id`, `date`) VALUES
+('25c458c7-2d65-4c00-b7dc-d435d73f0d7f', '2024-03-07');
 
 -- --------------------------------------------------------
 
@@ -65,6 +102,7 @@ CREATE TABLE `tbl_employees` (
 --
 
 INSERT INTO `tbl_employees` (`emp_id`, `hp_id`, `last_name`, `first_name`, `middle_name`, `profession`, `specialization`) VALUES
+('2e13f66a-6197-4e03-81fc-e3e12dba841f', 'HPID-1709756205981', 'SecLast', 'SecFirst', 'SecMiddle', 'Secretary', 'N/A'),
 ('67efc7e0-4445-4370-a3dd-55bd2adfe8ae', 'HPID-1709663170820', 'TempLast', 'TempFirst', 'TempMiddle', 'Doctor', 'General Surgery'),
 ('7ce88b9f-d80f-4945-a018-e448620d3f76', 'HPID-1709657591169', 'Villadores', 'Janrev Lance', 'Florig', 'Doctor', 'Cardiologist');
 
@@ -83,22 +121,13 @@ CREATE TABLE `tbl_patients` (
   `gender` varchar(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `tbl_reservation_details`
+-- Dumping data for table `tbl_patients`
 --
 
-CREATE TABLE `tbl_reservation_details` (
-  `reserve_id` varchar(64) NOT NULL,
-  `patient_id_fk` varchar(64) DEFAULT NULL,
-  `rd_id_fk` varchar(64) DEFAULT NULL,
-  `description` varchar(256) NOT NULL,
-  `date` date NOT NULL,
-  `time` time NOT NULL,
-  `secretary_id` varchar(64) DEFAULT NULL,
-  `doctor_id` varchar(64) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+INSERT INTO `tbl_patients` (`patient_id`, `last_name`, `first_name`, `middle_name`, `age`, `gender`) VALUES
+('62c17a1f-88a0-43e3-96ea-cbc5a1d899a1', 'PatLast', 'PatFirst', 'PatMiddle', 18, 'male'),
+('670c3a68-c49f-4832-841c-ecce825889f4', 'temp', 'tempbro', 'tempyeah', 20, 'male');
 
 -- --------------------------------------------------------
 
@@ -199,7 +228,9 @@ CREATE TABLE `tbl_time_doctor` (
 --
 
 INSERT INTO `tbl_time_doctor` (`rd_id`, `time_id`, `ad_id`) VALUES
+('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1e71-db0d-11ee-9efc-902e16b789a2', '25c458c7-2d65-4c00-b7dc-d435d73f0d7f'),
 ('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1e1c-db0d-11ee-9efc-902e16b789a2', '2e74dd53-c198-468f-8c55-e7d087989640'),
+('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1e44-db0d-11ee-9efc-902e16b789a2', 'bd47d931-feb6-4017-8b38-0ddfaec7d4aa'),
 ('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1dc0-db0d-11ee-9efc-902e16b789a2', 'd8adaeb2-d3a4-46f0-b689-569d320daa51');
 
 --
@@ -211,6 +242,15 @@ INSERT INTO `tbl_time_doctor` (`rd_id`, `time_id`, `ad_id`) VALUES
 --
 ALTER TABLE `tbl_accounts`
   ADD PRIMARY KEY (`emp_id`);
+
+--
+-- Indexes for table `tbl_appointment_details`
+--
+ALTER TABLE `tbl_appointment_details`
+  ADD PRIMARY KEY (`reserve_id`,`date`,`time`),
+  ADD KEY `patient_id_fk` (`patient_id_fk`),
+  ADD KEY `rd_id` (`rd_id`),
+  ADD KEY `secretary_id` (`secretary_id`);
 
 --
 -- Indexes for table `tbl_avail_doctor`
@@ -229,16 +269,6 @@ ALTER TABLE `tbl_employees`
 --
 ALTER TABLE `tbl_patients`
   ADD PRIMARY KEY (`patient_id`);
-
---
--- Indexes for table `tbl_reservation_details`
---
-ALTER TABLE `tbl_reservation_details`
-  ADD PRIMARY KEY (`reserve_id`),
-  ADD KEY `patient_id_fk` (`patient_id_fk`),
-  ADD KEY `rd_id_fk` (`rd_id_fk`),
-  ADD KEY `secretary_id` (`secretary_id`),
-  ADD KEY `doctor_id` (`doctor_id`);
 
 --
 -- Indexes for table `tbl_rooms`
@@ -279,19 +309,18 @@ ALTER TABLE `tbl_accounts`
   ADD CONSTRAINT `tbl_accounts_ibfk_1` FOREIGN KEY (`emp_id`) REFERENCES `tbl_employees` (`emp_id`);
 
 --
+-- Constraints for table `tbl_appointment_details`
+--
+ALTER TABLE `tbl_appointment_details`
+  ADD CONSTRAINT `tbl_appointment_details_ibfk_1` FOREIGN KEY (`patient_id_fk`) REFERENCES `tbl_patients` (`patient_id`),
+  ADD CONSTRAINT `tbl_appointment_details_ibfk_2` FOREIGN KEY (`rd_id`) REFERENCES `tbl_time_doctor` (`rd_id`),
+  ADD CONSTRAINT `tbl_appointment_details_ibfk_3` FOREIGN KEY (`secretary_id`) REFERENCES `tbl_accounts` (`emp_id`);
+
+--
 -- Constraints for table `tbl_avail_doctor`
 --
 ALTER TABLE `tbl_avail_doctor`
   ADD CONSTRAINT `tbl_avail_doctor_ibfk_1` FOREIGN KEY (`ad_id`) REFERENCES `tbl_time_doctor` (`ad_id`);
-
---
--- Constraints for table `tbl_reservation_details`
---
-ALTER TABLE `tbl_reservation_details`
-  ADD CONSTRAINT `tbl_reservation_details_ibfk_1` FOREIGN KEY (`patient_id_fk`) REFERENCES `tbl_patients` (`patient_id`),
-  ADD CONSTRAINT `tbl_reservation_details_ibfk_2` FOREIGN KEY (`rd_id_fk`) REFERENCES `tbl_room_doctor` (`rd_id`),
-  ADD CONSTRAINT `tbl_reservation_details_ibfk_3` FOREIGN KEY (`secretary_id`) REFERENCES `tbl_accounts` (`emp_id`),
-  ADD CONSTRAINT `tbl_reservation_details_ibfk_4` FOREIGN KEY (`doctor_id`) REFERENCES `tbl_accounts` (`emp_id`);
 
 --
 -- Constraints for table `tbl_room_doctor`
