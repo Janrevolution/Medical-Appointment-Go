@@ -174,8 +174,8 @@ Enter your Choice: `)
 						}
 					}
 
-
 					err := addEmployee(lastName, firstName, middleName, profession, specialization)
+
 					if err != nil {
 						cls.CLS()
 						fmt.Println("Error creating user:", err)
@@ -218,22 +218,21 @@ Enter your Choice: `)
 				if err != nil {
 					fmt.Println("Error deleting doctor & room data:", err)
 				}
-
-				
-				fmt.Println("\nAssign Menu:")
-				fmt.Println("1. Assign Doctor Room")
-				fmt.Println("2. Edit Doctor Room")
-				fmt.Println("3. Remove Doctor Room")
-				fmt.Println("4. Assign Doctor Time")
-				fmt.Println("5. Edit Doctor Time")
-				fmt.Println("6. Remove Doctor Time")
-				fmt.Println("7. Go back to Admin Menu")
-				fmt.Print("Enter your choice: ")
+				fmt.Print(`
+Assign Menu:	
+1. Assign Doctor Room
+2. Edit Doctor Room
+3. Remove Doctor Room
+4. Assign Doctor Time 
+5. Edit Doctor Time
+6. Remove Doctor Time
+7. Go back to Admin Menu
+Enter your Choice: `)
 				fmt.Scanln(&choice)
 
 				switch choice {
 				case 1:
-					fmt.Println("Room Data:")
+					fmt.Println("\nRoom Data:")
 					err = printRooms()
 					if err != nil {
 						fmt.Println("Error reading room data:", err)
