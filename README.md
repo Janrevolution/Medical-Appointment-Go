@@ -40,7 +40,7 @@ Create table tbl_appointment_details(
     patient_id_fk varchar(64),
     rd_id varchar(64),
     date date not null,
-    time time not null,
+    time varchar(64) not null,
     secretary_id varchar(64),
     description varchar(256),
     primary key (reserve_id, date, time),

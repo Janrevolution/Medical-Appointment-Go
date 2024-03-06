@@ -190,7 +190,7 @@ func printPatients() error {
 
 		patid = strings.Split(patid, "-")[0]
 
-		fmt.Printf("ID: %s | Employee: %s, %s %s | Age: %d | Gender: %s\n", patid, lastName, firstName, middleName, age, gender)
+		fmt.Printf("Patient ID: %s | Employee: %s, %s %s | Age: %d | Gender: %s\n", patid, lastName, firstName, middleName, age, gender)
 	}
 
 	if err := rows.Err(); err != nil {
@@ -365,6 +365,64 @@ func printUnavDoctors() error {
 		adIDParts := strings.Split(adID, "-")
 
 		fmt.Printf("Doctor Time ID: %s | Doctor: %s, %s, %s | %s | Start Time: %s | End Time: %s\n", adIDParts[0], lastName, firstName, middleName, formattedDate, startTime, endTime)
+	}
+
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func freeTime() error {
+	db, err := connectDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	rows, err := db.Query(`
+        SELECT CONCAT(e.first_name, ' ', e.middle_name, ' ', e.last_name) AS doctor_name, e.specialization, td.rd_id, td.time_id, DATE_FORMAT(t.start_time, '%h:%i:%s %p') AS formatted_start_time, DATE_FORMAT(t.end_time, '%h:%i:%s %p') AS formatted_end_time
+        FROM tbl_employees e
+        JOIN tbl_room_doctor rd ON e.emp_id = rd.doctor_id_fk
+        JOIN tbl_time_doctor td ON rd.rd_id = td.rd_id
+        JOIN tbl_time t ON td.time_id = t.time_id
+        LEFT JOIN tbl_avail_doctor ad ON td.ad_id = ad.ad_id AND ad.date = CURDATE()
+        WHERE ad.date IS NULL;
+    `)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	var prevDoctorID string
+	var isNewDoctor bool = true
+
+	for rows.Next() {
+		var doctorName, specialization, rdID, timeID, formattedStartTime, formattedEndTime string
+
+		err := rows.Scan(&doctorName, &specialization, &rdID, &timeID, &formattedStartTime, &formattedEndTime)
+		if err != nil {
+			return err
+		}
+
+		// Checker for new Doctor
+		isNewDoctor = !(doctorName == prevDoctorID)
+
+		// Output new Doctor
+		if isNewDoctor {
+			// Split rdID and take the first part
+			rdID = strings.Split(rdID, "-")[0]
+			fmt.Printf("Doctor: %s (rd_id: %s) | Specialization: %s \n", doctorName, rdID, specialization)
+		}
+
+		// Split timeID and take the first part
+		timeID = strings.Split(timeID, "-")[0]
+
+		fmt.Printf("\t- Time Slot: %s - %s (Time ID: %s)\n", formattedStartTime, formattedEndTime, timeID)
+
+		// Update Doctor ID
+		prevDoctorID = doctorName
 	}
 
 	if err := rows.Err(); err != nil {

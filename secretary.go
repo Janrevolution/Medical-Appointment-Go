@@ -26,7 +26,6 @@ func secretary(empId string) {
 	var choice int
 	var err error
 	for {
-		fmt.Println(empId)
 		fmt.Print(`
 Secretary Menu:
 1. Patients
@@ -130,6 +129,15 @@ Enter your choice: `)
 				secretary(empId)
 			}
 		case 2:
+			err = freeTime()
+			if err != nil {
+				fmt.Println("Error reading doctor free time data:", err)
+			}
+			fmt.Println()
+			err = printPatients()
+			if err != nil {
+				fmt.Println("Error reading patientsdata:", err)
+			}
 			fmt.Println("1. Add Reservation")
 			fmt.Println("2. Edit Reservation")
 			fmt.Println("2. Delete Reservation")
@@ -137,7 +145,53 @@ Enter your choice: `)
 			fmt.Scanln(&choice)
 			switch choice {
 			case 1:
+				err = freeTime()
+				if err != nil {
+					fmt.Println("Error reading doctor free time data:", err)
+				}
+				fmt.Println()
+				err = printPatients()
+				if err != nil {
+					fmt.Println("Error reading patientsdata:", err)
+				}
 
+				var patientId, rdId, timeId, date, description string
+
+				fmt.Print("Enter the Patient's ID: ")
+				fmt.Scanln(&patientId)
+				patientId, err := getIdTemp(patientId, "patient")
+				if err != nil {
+					fmt.Println("Error getting patient ID:", err)
+				}
+
+				fmt.Print("Enter Room Doctor's ID: ")
+				fmt.Scanln(&rdId)
+				rdId, err = getIdTemp(rdId, "time_doctorRD")
+				if err != nil {
+					fmt.Println("Error getting time ID:", err)
+				}
+
+				fmt.Print("Enter Date for the patient(YYYY-MM-DD): ")
+				fmt.Scanln(&date)
+
+				fmt.Print("Enter Time ID: ")
+				fmt.Scanln(&timeId)
+				timeId, err = getIdTemp(timeId, "time_doctorT")
+				if err != nil {
+					fmt.Println("Error getting time ID:", err)
+				}
+
+				fmt.Print("Enter brief symptoms: ")
+				fmt.Scanln(&description)
+
+				uuid := uuid.New().String()
+
+				query := "INSERT INTO tbl_appointment_details (reserve_id, patient_id_fk, rd_id, date, time, secretary_id, description) VALUES (?, ?, ?, ?, ?, ?, ?)"
+				err = SQLManager(query, uuid, patientId, rdId, date, timeId, empId, description)
+				if err != nil {
+					fmt.Println("Error executing SQL query: ", err)
+				}
+				fmt.Println("Added time to doctor")
 			}
 		}
 	}

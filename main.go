@@ -364,7 +364,17 @@ func getIdTemp(cutId, table string) (string, error) {
 	} else if table == "avail_doctor" {
 		query := "SELECT ad_id FROM tbl_avail_doctor WHERE LEFT(ad_id, 8) = ?"
 		err = db.QueryRow(query, cutId).Scan(&id)
+	} else if table == "patient" {
+		query := "SELECT patient_id FROM tbl_patients WHERE LEFT(patient_id, 8) = ?"
+		err = db.QueryRow(query, cutId).Scan(&id)
+	} else if table == "time_doctorT" {
+		query := "SELECT time_id FROM tbl_time_doctor WHERE LEFT(time_id, 8) = ?"
+		err = db.QueryRow(query, cutId).Scan(&id)
+	} else if table == "time_doctorRD" {
+		query := "SELECT rd_id FROM tbl_time_doctor WHERE LEFT(rd_id, 8) = ?"
+		err = db.QueryRow(query, cutId).Scan(&id)
 	}
+
 	if err != nil {
 		return "", err
 	}
