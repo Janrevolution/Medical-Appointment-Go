@@ -8,6 +8,11 @@
 6. Import the downloade database to your created database using ```mysql -u root mydb < mydb.sql```
 7. Done
 
+# [TEMP] To-do:
+1. Add the logic in printing to have where date in appointment_details
+2. Finish doctor view
+3. Finish edit function in functions that need it 
+
 # Creation of tables [FOR DOCUMENTATION]
 ```mysql
 Create table tbl_doctor(
