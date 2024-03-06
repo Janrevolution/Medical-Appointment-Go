@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 06, 2024 at 07:34 AM
+-- Generation Time: Mar 06, 2024 at 02:18 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -40,10 +40,8 @@ CREATE TABLE `tbl_accounts` (
 --
 
 CREATE TABLE `tbl_avail_doctor` (
-  `rd_id` varchar(64) NOT NULL,
-  `date` date NOT NULL,
-  `time_id` varchar(64) NOT NULL,
-  `status_id` varchar(64) NOT NULL
+  `ad_id` varchar(64) NOT NULL,
+  `date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -145,25 +143,6 @@ INSERT INTO `tbl_room_doctor` (`rd_id`, `doctor_id_fk`, `room_id_fk`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `tbl_status`
---
-
-CREATE TABLE `tbl_status` (
-  `status_id` varchar(64) NOT NULL,
-  `status_name` varchar(32) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `tbl_status`
---
-
-INSERT INTO `tbl_status` (`status_id`, `status_name`) VALUES
-('4b8b8801-db0e-11ee-9efc-902e16b789a2', 'Available'),
-('4b8b9300-db0e-11ee-9efc-902e16b789a2', 'Unavailable');
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `tbl_time`
 --
 
@@ -211,15 +190,17 @@ INSERT INTO `tbl_time` (`time_id`, `start_time`, `end_time`) VALUES
 
 CREATE TABLE `tbl_time_doctor` (
   `rd_id` varchar(64) NOT NULL,
-  `time_id` varchar(64) NOT NULL
+  `time_id` varchar(64) NOT NULL,
+  `ad_id` varchar(64) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_time_doctor`
 --
 
-INSERT INTO `tbl_time_doctor` (`rd_id`, `time_id`) VALUES
-('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1def-db0d-11ee-9efc-902e16b789a2');
+INSERT INTO `tbl_time_doctor` (`rd_id`, `time_id`, `ad_id`) VALUES
+('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1e1c-db0d-11ee-9efc-902e16b789a2', '2e74dd53-c198-468f-8c55-e7d087989640'),
+('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1dc0-db0d-11ee-9efc-902e16b789a2', 'd8adaeb2-d3a4-46f0-b689-569d320daa51');
 
 --
 -- Indexes for dumped tables
@@ -235,9 +216,7 @@ ALTER TABLE `tbl_accounts`
 -- Indexes for table `tbl_avail_doctor`
 --
 ALTER TABLE `tbl_avail_doctor`
-  ADD PRIMARY KEY (`rd_id`,`date`,`time_id`,`status_id`),
-  ADD KEY `time_id` (`time_id`),
-  ADD KEY `status_id` (`status_id`);
+  ADD PRIMARY KEY (`ad_id`,`date`);
 
 --
 -- Indexes for table `tbl_employees`
@@ -276,12 +255,6 @@ ALTER TABLE `tbl_room_doctor`
   ADD KEY `room_id_fk` (`room_id_fk`);
 
 --
--- Indexes for table `tbl_status`
---
-ALTER TABLE `tbl_status`
-  ADD PRIMARY KEY (`status_id`);
-
---
 -- Indexes for table `tbl_time`
 --
 ALTER TABLE `tbl_time`
@@ -292,6 +265,7 @@ ALTER TABLE `tbl_time`
 --
 ALTER TABLE `tbl_time_doctor`
   ADD PRIMARY KEY (`rd_id`,`time_id`),
+  ADD UNIQUE KEY `ad_id` (`ad_id`),
   ADD KEY `time_id` (`time_id`);
 
 --
@@ -308,9 +282,7 @@ ALTER TABLE `tbl_accounts`
 -- Constraints for table `tbl_avail_doctor`
 --
 ALTER TABLE `tbl_avail_doctor`
-  ADD CONSTRAINT `tbl_avail_doctor_ibfk_1` FOREIGN KEY (`rd_id`) REFERENCES `tbl_time_doctor` (`rd_id`),
-  ADD CONSTRAINT `tbl_avail_doctor_ibfk_2` FOREIGN KEY (`time_id`) REFERENCES `tbl_time` (`time_id`),
-  ADD CONSTRAINT `tbl_avail_doctor_ibfk_3` FOREIGN KEY (`status_id`) REFERENCES `tbl_status` (`status_id`);
+  ADD CONSTRAINT `tbl_avail_doctor_ibfk_1` FOREIGN KEY (`ad_id`) REFERENCES `tbl_time_doctor` (`ad_id`);
 
 --
 -- Constraints for table `tbl_reservation_details`
