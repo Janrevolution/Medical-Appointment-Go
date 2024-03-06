@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 	"unicode"
-	
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 )
@@ -22,7 +22,6 @@ func isAlphaOrSpace(s string) bool {
 	}
 	return true
 }
-
 
 func secretary() {
 	scanner := bufio.NewScanner(os.Stdin)
@@ -512,8 +511,10 @@ func getIdTemp(cutId, table string) (string, error) {
 	} else if table == "tbl_time" {
 		query := "SELECT time_id FROM tbl_time WHERE LEFT(time_id, 8) = ?"
 		err = db.QueryRow(query, cutId).Scan(&id)
+	} else if table == "time_doctor" {
+		query := "SELECT ad_id FROM tbl_time_doctor WHERE LEFT(ad_id, 8) = ?"
+		err = db.QueryRow(query, cutId).Scan(&id)
 	}
-
 	if err != nil {
 		return "", err
 	}

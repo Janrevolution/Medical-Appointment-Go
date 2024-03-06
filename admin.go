@@ -7,6 +7,7 @@ import (
 
 	"github.com/MasterDimmy/go-cls"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/google/uuid"
 )
 
 func adminFunction() {
@@ -223,9 +224,10 @@ Enter your Choice: `)
 				fmt.Println("2. Edit Doctor Room")
 				fmt.Println("3. Remove Doctor Room")
 				fmt.Println("4. Assign Doctor Time")
-				fmt.Println("5. Edit Doctor Time")
-				fmt.Println("6. Remove Doctor Time")
-				fmt.Println("7. Go back to Admin Menu")
+				fmt.Println("5. Remove Doctor Time")
+				fmt.Println("6. Add Unavailable Doctor Time")
+				fmt.Println("7. Remove Unavailable Doctor Time")
+				fmt.Println("8. Go back to Admin Menu")
 				fmt.Print("Enter your choice: ")
 				fmt.Scanln(&choice)
 
@@ -332,9 +334,9 @@ Enter your Choice: `)
 					if err != nil {
 						fmt.Println("Error getting time ID:", err)
 					}
-
-					query := "INSERT INTO tbl_time_doctor (rd_id, time_id) VALUES (?, ?)"
-					err = SQLManager(query, doctorId, timeId)
+					uuid := uuid.New().String()
+					query := "INSERT INTO tbl_time_doctor (rd_id, time_id, ad_id) VALUES (?, ?, ?)"
+					err = SQLManager(query, doctorId, timeId, uuid)
 					if err != nil {
 						fmt.Println("Error executing SQL query: ", err)
 					}
@@ -346,36 +348,17 @@ Enter your Choice: `)
 						fmt.Println("Error Printing Assigned Doctors!:", err)
 					}
 
-					fmt.Println("\nTime Slots: ")
-					err = printTimeSlot()
+					var adId string
+
+					fmt.Print("Enter the Doctor's Time ID whose time to be removed: ")
+					fmt.Scanln(&adId)
+					adId, err := getIdTemp(adId, "time_doctor")
 					if err != nil {
-						fmt.Println("Error Printing Time Slots!:", err)
+						fmt.Println("Error getting time doctor ID:", err)
 					}
 
-					fmt.Println("\nAssigned Doctor Room List: ")
-					err = printDoctorsTemp()
-					if err != nil {
-						fmt.Println("Error Printing Assigned Doctors!:", err)
-					}
-
-					var timeId, doctorId string
-
-					fmt.Print("Enter the Doctor's ID whose time to be removed: ")
-					fmt.Scanln(&doctorId)
-					doctorId, err := getIdTemp(doctorId, "room_doctor")
-					if err != nil {
-						fmt.Println("Error getting doctor ID:", err)
-					}
-
-					fmt.Print("Enter the time ID: ")
-					fmt.Scanln(&timeId)
-					timeId, err = getIdTemp(timeId, "tbl_time")
-					if err != nil {
-						fmt.Println("Error getting time ID:", err)
-					}
-
-					query := "DELETE FROM tbl_time_doctor WHERE rd_id = ? AND time_id = ?"
-					err = SQLManager(query, doctorId, timeId)
+					query := "DELETE FROM tbl_time_doctor WHERE ad_id = ?"
+					err = SQLManager(query, adId)
 					if err != nil {
 						fmt.Println("Error executing SQL query: ", err)
 					}
@@ -387,45 +370,27 @@ Enter your Choice: `)
 						fmt.Println("Error Printing Assigned Doctors!:", err)
 					}
 
-					fmt.Println("\nTime Slots: ")
-					err = printTimeSlot()
-					if err != nil {
-						fmt.Println("Error Printing Time Slots!:", err)
-					}
+					var adId, date string
 
-					fmt.Println("\nAssigned Doctor Room List: ")
-					err = printDoctorsTemp()
+					fmt.Print("Enter the Doctor's Time ID whose time to be unavailable: ")
+					fmt.Scanln(&adId)
+					adId, err := getIdTemp(adId, "time_doctor")
 					if err != nil {
-						fmt.Println("Error Printing Assigned Doctors!:", err)
-					}
-
-					var timeId, date, doctorId string
-
-					fmt.Print("Enter the Doctor's ID whose time will be unavailable: ")
-					fmt.Scanln(&doctorId)
-					doctorId, err := getIdTemp(doctorId, "room_doctor")
-					if err != nil {
-						fmt.Println("Error getting doctor ID:", err)
+						fmt.Println("Error getting time doctor ID:", err)
 					}
 
 					fmt.Print("Enter the date to be unavailable (YYYY-MM-DD): ")
 					fmt.Scanln(&date)
 
-					fmt.Print("Enter the time ID that will be unavailable: ")
-					fmt.Scanln(&timeId)
-					timeId, err = getIdTemp(timeId, "tbl_time")
-					if err != nil {
-						fmt.Println("Error getting time ID:", err)
-					}
-
-					query := "INSERT INTO tbl_avail_doctor (rd_id, date, time_id, status_id) VALUES (?, ?, ?, ?)"
-					err = SQLManager(query, doctorId, date, timeId, "4b8b9300-db0e-11ee-9efc-902e16b789a2")
+					query := "INSERT INTO tbl_avail_doctor (ad_id, date) VALUES (?, ?)"
+					err = SQLManager(query, adId, date)
 					if err != nil {
 						fmt.Println("Error executing SQL query: ", err)
 					}
-					fmt.Println("Added time to doctor")
-
+					fmt.Println("Added date for the time of the doctor")
 				case 7:
+
+				case 8:
 					fmt.Println("Going back to Admin Menu...")
 					continue OuterLoop
 				default:

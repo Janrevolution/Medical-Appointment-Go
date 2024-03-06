@@ -73,20 +73,18 @@ Create table tbl_status(
 Create table tbl_time_doctor(
     rd_id varchar(64), 
     time_id varchar(64),
+    ad_id varchar(64) not null,
     primary key(rd_id, time_id),
     foreign key(rd_id) references tbl_room_doctor(rd_id),
-    foreign key(time_id) references tbl_time(time_id)
+    foreign key(time_id) references tbl_time(time_id),
+    unique (ad_id)
 );
 
 Create table tbl_avail_doctor(
-    rd_id varchar(64),
+    ad_id varchar(64),
     date date,
-    time_id varchar(64),
-    status_id varchar(64),
-    primary key(rd_id, date, time_id, status_id),
-    foreign key (rd_id) references tbl_time_doctor(rd_id),
-    foreign key (time_id) references tbl_time(time_id),
-    foreign key (status_id) references tbl_status(status_id)
+    primary key(ad_id, date),
+    foreign key (ad_id) references tbl_time_doctor(ad_id)
 );
 
 # Query for tbl_time

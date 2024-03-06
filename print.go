@@ -280,44 +280,48 @@ func printAssignedDoctorTime() error {
 	defer db.Close()
 
 	rows, err := db.Query(`
-		SELECT e.last_name, e.first_name, e.middle_name,
-			CONCAT(DATE_FORMAT(t.start_time, '%h:%i:%s %p'), ' - ', DATE_FORMAT(t.end_time, '%h:%i:%s %p')) AS time_slot
-		FROM tbl_employees e
-		JOIN tbl_room_doctor rd ON e.emp_id = rd.doctor_id_fk
-		JOIN tbl_time_doctor td ON rd.rd_id = td.rd_id
-		JOIN tbl_time t ON td.time_id = t.time_id
-		ORDER BY e.last_name, e.first_name, e.middle_name, t.start_time;
-	`)
+        SELECT rd.rd_id, e.last_name, e.first_name, e.middle_name,
+        CONCAT(DATE_FORMAT(t.start_time, '%h:%i:%s %p'), ' - ', DATE_FORMAT(t.end_time, '%h:%i:%s %p')) AS time_slot,
+        td.time_id, td.ad_id
+        FROM tbl_employees e
+        JOIN tbl_room_doctor rd ON e.emp_id = rd.doctor_id_fk
+        JOIN tbl_time_doctor td ON rd.rd_id = td.rd_id
+        JOIN tbl_time t ON td.time_id = t.time_id
+        ORDER BY e.last_name, e.first_name, e.middle_name, t.start_time;
+    `)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 
-	var prevLastName, prevFirstName, prevMiddleName string
+	var prevDoctorID string
 	var isNewDoctor bool = true
 
 	for rows.Next() {
-		var lastName, firstName, middleName, timeSlot string
+		var doctorID, lastName, firstName, middleName, timeID, timeSlot, adID string
 
-		err := rows.Scan(&lastName, &firstName, &middleName, &timeSlot)
+		err := rows.Scan(&doctorID, &lastName, &firstName, &middleName, &timeSlot, &timeID, &adID)
 		if err != nil {
 			return err
 		}
 
+		// Extracting only the first part of the UUIDs
+		doctorIDParts := strings.Split(doctorID, "-")
+		timeIDParts := strings.Split(timeID, "-")
+		adIDParts := strings.Split(adID, "-")
+
 		// Checker for new Doctor
-		isNewDoctor = !(lastName == prevLastName && firstName == prevFirstName && middleName == prevMiddleName)
+		isNewDoctor = !(doctorIDParts[0] == prevDoctorID)
 
 		// Output new Doctor
 		if isNewDoctor {
-			fmt.Printf("Doctor: %s, %s %s\n", lastName, firstName, middleName)
+			fmt.Printf("Doctor: %s %s %s (%s)\n", firstName, middleName, lastName, doctorIDParts[0])
 		}
 
-		fmt.Printf("\t- %s \n", timeSlot)
+		fmt.Printf("\t- Time Slot: %s (Time ID: %s) (Doctor Time ID: %s)\n", timeSlot, timeIDParts[0], adIDParts[0])
 
-		// Upate Doctor Name
-		prevLastName = lastName
-		prevFirstName = firstName
-		prevMiddleName = middleName
+		// Update Doctor ID
+		prevDoctorID = doctorIDParts[0]
 	}
 
 	if err := rows.Err(); err != nil {
