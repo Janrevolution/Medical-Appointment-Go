@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -14,57 +15,112 @@ import (
 	"github.com/google/uuid"
 )
 
+func isAlpha(s string) bool {
+	reg := regexp.MustCompile(`^[a-zA-Z]+$`)
+	return reg.MatchString(s)
+}
+
 func secretary() {
 	scanner := bufio.NewScanner(os.Stdin)
 	var choice int
 	var err error
 	for {
-		fmt.Println("\nSecretary Menu:")
-		fmt.Println("1. Patients")
-		fmt.Println("2. Reservation")
-		fmt.Println("3. Go Back")
-		fmt.Print("Enter your choice: ")
-		fmt.Scanln(&choice)
+		fmt.Print(`
+Secretary Menu:
+1. Patients
+2. Reservation
+3. Go Back
+Enter your choice: `)
+		_, err = fmt.Scanln(&choice)
+		if err != nil {
+			fmt.Println("Error reading input: ", err)
+			continue
+		}
 
 		switch choice {
 		case 1:
-			fmt.Println("\nPatient Menu:")
-			fmt.Println("1. Add Patient")
-			fmt.Println("2. Edit Patient")
-			fmt.Println("3. Go back to Admin Menu")
-			fmt.Print("Enter your choice: ")
-			fmt.Scanln(&choice)
+			fmt.Print(`
+Patient Menu:
+1. Add Patients
+2. Edit Patient
+3. Go Back to Admin Menu
+Enter your choice: `)
+
+			_, err = fmt.Scanln(&choice)
+			if err != nil {
+				fmt.Println("Error reading input: ", err)
+				continue
+			}
+
 			switch choice {
 			case 1:
 				var lastName, firstName, middleName, gender string
 				var age int
 
-				fmt.Print("Enter Last Name: ")
-				scanner.Scan()
-				lastName = scanner.Text()
+				for {
+					fmt.Print("Enter Last Name: ")
+					scanner.Scan()
+					lastName = scanner.Text()
+					if !isAlpha(lastName) {
+						fmt.Println("Invalid input!")
+					} else {
+						break
+					}
+				}
 
-				fmt.Print("Enter First Name: ")
-				scanner.Scan()
-				firstName = scanner.Text()
+				for {
+					fmt.Print("Enter First Name: ")
+					scanner.Scan()
+					firstName = scanner.Text()
+					if !isAlpha(firstName) {
+						fmt.Println("Invalid input!")
+					} else {
+						break
+					}
+				}
 
-				fmt.Print("Enter Middle Name: ")
-				scanner.Scan()
-				middleName = scanner.Text()
+				for {
+					fmt.Print("Enter Middle Name: ")
+					scanner.Scan()
+					middleName = scanner.Text()
+					if !isAlpha(middleName) {
+						fmt.Println("Invalid input!")
+					} else {
+						break
+					}
+				}
 
-				fmt.Print("Enter Age: ")
-				scanner.Scan()
-
-				fmt.Print("Enter Gender: ")
-				scanner.Scan()
-				gender = scanner.Text()
+				for {
+					fmt.Print("Enter Age: ")
+					_, err = fmt.Scanf("%d\n", &age)
+					if err != nil {
+						fmt.Println("Invalid input! Age should only be a number.")
+						// Clear the input buffer
+						reader := bufio.NewReader(os.Stdin)
+						_, _ = reader.ReadString('\n')
+					} else {
+						break
+					}
+				}
+				
+				for {
+					fmt.Print("Enter Gender: ")
+					scanner.Scan()
+					gender = strings.ToLower(scanner.Text())
+					if gender != "male" && gender != "female" {
+						fmt.Println("Invalid input! Gender should be either 'male' or 'female'.")
+					} else {
+						break
+					}
+				}
 
 				uuid := uuid.New().String()
-				// query := fmt.Sprintf("INSERT INTO tbl_patients (patient_id, last_name, first_name, middle_name, age, gender) VALUES ('%s', '%s', '%s', '%s', %d, '%s')", uuid, lastName, firstName, middleName, age, gender)
 
 				query := "INSERT INTO tbl_patients (patient_id, last_name, first_name, middle_name, age, gender) VALUES (?, ?, ?, ?, ?, ?)"
 				err := SQLManager(query, uuid, lastName, firstName, middleName, age, gender)
 				if err != nil {
 					fmt.Println("Error executing SQL query: ", err)
+					continue
 				}
 
 				fmt.Println("Patient added successfully.")
@@ -72,6 +128,7 @@ func secretary() {
 				err = printPatients()
 				if err != nil {
 					fmt.Println("Error reading employee data:", err)
+					continue
 				}
 			case 3:
 				secretary()
@@ -80,6 +137,7 @@ func secretary() {
 	}
 }
 
+// Insert, Update, Delete
 func SQLManager(query string, args ...interface{}) error {
 	db, err := connectDB()
 	if err != nil {
