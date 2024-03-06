@@ -6,35 +6,65 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strconv"
+	"strings"
 	"time"
-
+	"unicode"
+	
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 )
+
+func isAlphaOrSpace(s string) bool {
+	for _, r := range s {
+		if !unicode.IsLetter(r) && !unicode.IsSpace(r) {
+			return false
+		}
+	}
+	return true
+}
+
 
 func secretary() {
 	scanner := bufio.NewScanner(os.Stdin)
 	var choice int
 	var err error
 	for {
-		fmt.Println("\nSecretary Menu:")
-		fmt.Println("1. Patients")
-		fmt.Println("2. Reservation")
-		fmt.Println("3. Go Back")
-		fmt.Print("Enter your choice: ")
-		fmt.Scanln(&choice)
+		fmt.Print(`
+Secretary Menu:
+1. Patients
+2. Reservation
+3. Go Back to Main Menu
+Enter your choice: `)
+		_, err = fmt.Scanln(&choice)
+		if err != nil {
+			fmt.Println("Error reading input: ", err)
+			continue
+		}
 
 		switch choice {
 		case 1:
+			fmt.Print(`
+Patient Menu:
+1. Add Patients
+2. Go Back to Secretary Menu
+Enter your choice: `)
+
+			_, err = fmt.Scanln(&choice)
+			if err != nil {
+				fmt.Println("Error reading input: ", err)
+				continue
+			}
+
 			fmt.Println("\nPatient Menu:")
 			err = printPatients()
 			if err != nil {
 				fmt.Println("Error reading patient data:", err)
 			}
-			fmt.Println("1. Add Patient")
-			fmt.Println("2. Go back to Admin Menu")
-			fmt.Print("Enter your choice: ")
+			fmt.Print(`
+Patient Menu:
+1. Add Patients
+2. Go Back to Secretary Menu
+Enter your choice: `)
 			fmt.Scanln(&choice)
 			switch choice {
 			case 1:
@@ -46,42 +76,80 @@ func secretary() {
 				var lastName, firstName, middleName, gender string
 				var age int
 
-				fmt.Print("Enter Last Name: ")
-				scanner.Scan()
-				lastName = scanner.Text()
-
-				fmt.Print("Enter First Name: ")
-				scanner.Scan()
-				firstName = scanner.Text()
-
-				fmt.Print("Enter Middle Name: ")
-				scanner.Scan()
-				middleName = scanner.Text()
-
-				fmt.Print("Enter Age: ")
-				scanner.Scan()
-				ageStr := scanner.Text()
-				age, err := strconv.Atoi(ageStr)
-				if err != nil {
-					fmt.Println("Error converting age to integer:", err)
-					return
+				for {
+					fmt.Print("Enter Last Name: ")
+					scanner.Scan()
+					lastName = scanner.Text()
+					if !isAlphaOrSpace(lastName) {
+						fmt.Println("Invalid input!")
+					} else {
+						break
+					}
 				}
 
-				fmt.Print("Enter Gender: ")
-				scanner.Scan()
-				gender = scanner.Text()
+				for {
+					fmt.Print("Enter First Name: ")
+					scanner.Scan()
+					firstName = scanner.Text()
+					if !isAlphaOrSpace(firstName) {
+						fmt.Println("Invalid input!")
+					} else {
+						break
+					}
+				}
+
+				for {
+					fmt.Print("Enter Middle Name: ")
+					scanner.Scan()
+					middleName = scanner.Text()
+					if !isAlphaOrSpace(middleName) {
+						fmt.Println("Invalid input!")
+					} else {
+						break
+					}
+				}
+
+				for {
+					fmt.Print("Enter Age: ")
+					_, err = fmt.Scanf("%d\n", &age)
+					if err != nil {
+						fmt.Println("Invalid input! Age should only be a number.")
+						// Clear the input buffer
+						reader := bufio.NewReader(os.Stdin)
+						_, _ = reader.ReadString('\n')
+					} else {
+						break
+					}
+				}
+
+				for {
+					fmt.Print("Enter Gender: ")
+					scanner.Scan()
+					gender = strings.ToLower(scanner.Text())
+					if gender != "male" && gender != "female" {
+						fmt.Println("Invalid input! Gender should be either 'male' or 'female'.")
+					} else {
+						break
+					}
+				}
 
 				uuid := uuid.New().String()
-				// query := fmt.Sprintf("INSERT INTO tbl_patients (patient_id, last_name, first_name, middle_name, age, gender) VALUES ('%s', '%s', '%s', '%s', %d, '%s')", uuid, lastName, firstName, middleName, age, gender)
 
 				query := "INSERT INTO tbl_patients (patient_id, last_name, first_name, middle_name, age, gender) VALUES (?, ?, ?, ?, ?, ?)"
 				err = SQLManager(query, uuid, lastName, firstName, middleName, age, gender)
 				if err != nil {
 					fmt.Println("Error executing SQL query: ", err)
+					continue
 				}
 				fmt.Println("Patient added successfully.")
 			case 2:
-				secretary()
+				err = printPatients()
+				if err != nil {
+					fmt.Println("Error reading employee data:", err)
+					continue
+				}
+			case 3:
+				main()
 			}
 		case 2:
 			// fmt.Println("1. Add Reservation")
@@ -97,6 +165,7 @@ func secretary() {
 	}
 }
 
+// Insert, Update, Delete
 func SQLManager(query string, args ...interface{}) error {
 	db, err := connectDB()
 	if err != nil {
@@ -163,11 +232,12 @@ func main() {
 	var username, password string
 
 	for {
-		fmt.Println("Main Menu:")
-		fmt.Println("1. Log-in")
-		fmt.Println("2. Admin")
-		fmt.Println("3. Exit")
-		fmt.Print("Enter your choice: ")
+		fmt.Print(`
+Main Menu:
+1. Log-in
+2. Admin
+3. Exit
+Enter your choice: `)
 		fmt.Scanln(&choice)
 
 		switch choice {
@@ -449,4 +519,19 @@ func getIdTemp(cutId, table string) (string, error) {
 	}
 
 	return id, nil
+}
+func checkRoomExists(roomNumber int) (bool, error) {
+	db, err := connectDB()
+	if err != nil {
+		return false, err
+	}
+	defer db.Close()
+
+	var exists bool
+	err = db.QueryRow("SELECT EXISTS(SELECT 1 FROM tbl_rooms WHERE room_number=?)", roomNumber).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
 }
