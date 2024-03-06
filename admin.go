@@ -168,13 +168,19 @@ OuterLoop:
 				if err != nil {
 					fmt.Println("Error deleting doctor & room data:", err)
 				}
+
+				fmt.Println("\nAssigned Doctor Room with Time List: ")
+				err = printAssignedDoctorTime()
+				if err != nil {
+					fmt.Println("Error Printing Assigned Doctors!:", err)
+				}
 				fmt.Println("\nAssign Menu:")
 				fmt.Println("1. Assign Doctor Room")
 				fmt.Println("2. Edit Doctor Room")
 				fmt.Println("3. Remove Doctor Room")
 				fmt.Println("4. Assign Doctor Time")
-				fmt.Println("5. Edit Doctor Time")
-				fmt.Println("6. Remove Doctor Time")
+				fmt.Println("5. Remove Doctor Time")
+				fmt.Println("6. Add Unvalable Slots")
 				fmt.Println("7. Go back to Admin Menu")
 				fmt.Print("Enter your choice: ")
 				fmt.Scanln(&choice)
@@ -282,7 +288,6 @@ OuterLoop:
 					if err != nil {
 						fmt.Println("Error getting time ID:", err)
 					}
-					fmt.Println(timeId)
 
 					query := "INSERT INTO tbl_time_doctor (rd_id, time_id) VALUES (?, ?)"
 					err = SQLManager(query, doctorId, timeId)
@@ -290,6 +295,92 @@ OuterLoop:
 						fmt.Println("Error executing SQL query: ", err)
 					}
 					fmt.Println("Added time to doctor")
+				case 5:
+					fmt.Println("\nAssigned Doctor Room with Time List: ")
+					err = printAssignedDoctorTime()
+					if err != nil {
+						fmt.Println("Error Printing Assigned Doctors!:", err)
+					}
+
+					fmt.Println("\nTime Slots: ")
+					err = printTimeSlot()
+					if err != nil {
+						fmt.Println("Error Printing Time Slots!:", err)
+					}
+
+					fmt.Println("\nAssigned Doctor Room List: ")
+					err = printDoctorsTemp()
+					if err != nil {
+						fmt.Println("Error Printing Assigned Doctors!:", err)
+					}
+
+					var timeId, doctorId string
+
+					fmt.Print("Enter the Doctor's ID whose time to be removed: ")
+					fmt.Scanln(&doctorId)
+					doctorId, err := getIdTemp(doctorId, "room_doctor")
+					if err != nil {
+						fmt.Println("Error getting doctor ID:", err)
+					}
+
+					fmt.Print("Enter the time ID: ")
+					fmt.Scanln(&timeId)
+					timeId, err = getIdTemp(timeId, "tbl_time")
+					if err != nil {
+						fmt.Println("Error getting time ID:", err)
+					}
+
+					query := "DELETE FROM tbl_time_doctor WHERE rd_id = ? AND time_id = ?"
+					err = SQLManager(query, doctorId, timeId)
+					if err != nil {
+						fmt.Println("Error executing SQL query: ", err)
+					}
+					fmt.Println("Deleted time to doctor")
+				case 6:
+					fmt.Println("\nAssigned Doctor Room with Time List: ")
+					err = printAssignedDoctorTime()
+					if err != nil {
+						fmt.Println("Error Printing Assigned Doctors!:", err)
+					}
+
+					fmt.Println("\nTime Slots: ")
+					err = printTimeSlot()
+					if err != nil {
+						fmt.Println("Error Printing Time Slots!:", err)
+					}
+
+					fmt.Println("\nAssigned Doctor Room List: ")
+					err = printDoctorsTemp()
+					if err != nil {
+						fmt.Println("Error Printing Assigned Doctors!:", err)
+					}
+
+					var timeId, date, doctorId string
+
+					fmt.Print("Enter the Doctor's ID whose time will be unavailable: ")
+					fmt.Scanln(&doctorId)
+					doctorId, err := getIdTemp(doctorId, "room_doctor")
+					if err != nil {
+						fmt.Println("Error getting doctor ID:", err)
+					}
+
+					fmt.Print("Enter the date to be unavailable (YYYY-MM-DD): ")
+					fmt.Scanln(&date)
+
+					fmt.Print("Enter the time ID that will be unavailable: ")
+					fmt.Scanln(&timeId)
+					timeId, err = getIdTemp(timeId, "tbl_time")
+					if err != nil {
+						fmt.Println("Error getting time ID:", err)
+					}
+
+					query := "INSERT INTO tbl_avail_doctor (rd_id, date, time_id, status_id) VALUES (?, ?, ?, ?)"
+					err = SQLManager(query, doctorId, date, timeId, "4b8b9300-db0e-11ee-9efc-902e16b789a2")
+					if err != nil {
+						fmt.Println("Error executing SQL query: ", err)
+					}
+					fmt.Println("Added time to doctor")
+
 				case 7:
 					fmt.Println("Going back to Admin Menu...")
 					continue OuterLoop

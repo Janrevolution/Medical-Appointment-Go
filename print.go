@@ -206,7 +206,14 @@ func printTimeSlot() error {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT * FROM tbl_time")
+	rows, err := db.Query(`
+    SELECT 
+        time_id,
+        DATE_FORMAT(start_time, '%h:%i:%s %p') AS start_time,
+        DATE_FORMAT(end_time, '%h:%i:%s %p') AS end_time
+    FROM 
+        tbl_time;
+	`)
 	if err != nil {
 		return err
 	}
