@@ -8,7 +8,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"strconv"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -29,7 +28,7 @@ func secretary() {
 Secretary Menu:
 1. Patients
 2. Reservation
-3. Go Back
+3. Go Back to Main Menu
 Enter your choice: `)
 		_, err = fmt.Scanln(&choice)
 		if err != nil {
@@ -42,7 +41,7 @@ Enter your choice: `)
 			fmt.Print(`
 Patient Menu:
 1. Add Patients
-2. Go Back to Admin Menu
+2. Go Back to Secretary Menu
 Enter your choice: `)
 
 			_, err = fmt.Scanln(&choice)
@@ -56,9 +55,11 @@ Enter your choice: `)
 			if err != nil {
 				fmt.Println("Error reading patient data:", err)
 			}
-			fmt.Println("1. Add Patient")
-			fmt.Println("2. Go back to Admin Menu")
-			fmt.Print("Enter your choice: ")
+			fmt.Print(`
+Patient Menu:
+1. Add Patients
+2. Go Back to Secretary Menu
+Enter your choice: `)
 			fmt.Scanln(&choice)
 			switch choice {
 			case 1:
@@ -115,7 +116,7 @@ Enter your choice: `)
 						break
 					}
 				}
-				
+
 				for {
 					fmt.Print("Enter Gender: ")
 					scanner.Scan()
@@ -126,30 +127,6 @@ Enter your choice: `)
 						break
 					}
 				}
-				fmt.Print("Enter Last Name: ")
-				scanner.Scan()
-				lastName = scanner.Text()
-
-				fmt.Print("Enter First Name: ")
-				scanner.Scan()
-				firstName = scanner.Text()
-
-				fmt.Print("Enter Middle Name: ")
-				scanner.Scan()
-				middleName = scanner.Text()
-
-				fmt.Print("Enter Age: ")
-				scanner.Scan()
-				ageStr := scanner.Text()
-				age, err := strconv.Atoi(ageStr)
-				if err != nil {
-					fmt.Println("Error converting age to integer:", err)
-					return
-				}
-
-				fmt.Print("Enter Gender: ")
-				scanner.Scan()
-				gender = scanner.Text()
 
 				uuid := uuid.New().String()
 
@@ -167,7 +144,7 @@ Enter your choice: `)
 					continue
 				}
 			case 3:
-				secretary()
+				main()
 			}
 		case 2:
 			// fmt.Println("1. Add Reservation")
@@ -250,11 +227,12 @@ func main() {
 	var username, password string
 
 	for {
-		fmt.Println("Main Menu:")
-		fmt.Println("1. Log-in")
-		fmt.Println("2. Admin")
-		fmt.Println("3. Exit")
-		fmt.Print("Enter your choice: ")
+		fmt.Print(`
+Main Menu:
+1. Log-in
+2. Admin
+3. Exit
+Enter your choice: `)
 		fmt.Scanln(&choice)
 
 		switch choice {
@@ -536,4 +514,19 @@ func getIdTemp(cutId, table string) (string, error) {
 	}
 
 	return id, nil
+}
+func checkRoomExists(roomNumber int) (bool, error) {
+	db, err := connectDB()
+	if err != nil {
+		return false, err
+	}
+	defer db.Close()
+
+	var exists bool
+	err = db.QueryRow("SELECT EXISTS(SELECT 1 FROM tbl_rooms WHERE room_number=?)", roomNumber).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
 }

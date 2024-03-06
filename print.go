@@ -20,6 +20,7 @@ func printRooms() error {
 	}
 	defer rows.Close()
 
+	fmt.Println("\nExisting Rooms: ")
 	for rows.Next() {
 		var roomNumber string
 		var capacity string

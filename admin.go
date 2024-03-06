@@ -15,13 +15,14 @@ func adminFunction() {
 	var err error
 OuterLoop:
 	for {
-		fmt.Println("\nAdmin Menu:")
-		fmt.Println("1. Rooms")
-		fmt.Println("2. Employee function")
-		fmt.Println("3. Assign Doctor")
-		fmt.Println("4. Create Account")
-		fmt.Println("5. Go back to Main Menu")
-		fmt.Print("Enter your choice: ")
+		fmt.Print(`
+Admin Menu:
+1. Rooms
+2. Employee function
+3. Assign Doctor
+4. Create Account
+5. Go back to Main Menu 
+Enter your choice: `)
 		fmt.Scanln(&choice)
 		switch choice {
 		case 1:
@@ -30,13 +31,13 @@ OuterLoop:
 				if err != nil {
 					fmt.Println("Error reading room data:", err)
 				}
-
-				fmt.Println("\nRooms Menu:")
-				fmt.Println("1. Add room")
-				fmt.Println("2. Edit room")
-				fmt.Println("3. Delete room")
-				fmt.Println("4. Go back to Admin Menu")
-				fmt.Print("Enter your choice: ")
+				fmt.Print(`
+Rooms Menu:
+1. Add room
+2. Edit room
+3. Delete room
+4. Go back to Admin Menu
+Enter your Choice: `)
 				fmt.Scanln(&choice)
 
 				switch choice {
@@ -52,14 +53,24 @@ OuterLoop:
 					fmt.Scanln(&roomNumber)
 
 					// fmt.Printf("You entered room type: %s and room number: %d\n", roomType, roomNumber)
+					// Check if the room number already exists
+					exists, err := checkRoomExists(roomNumber)
+					if err != nil {
+						fmt.Println("Error checking room:", err)
+						continue
+					}
+					if exists {
+						fmt.Println("ERROR! Room is already Existing")
+						continue
+					}
 
-					err := addRoom(roomType, roomNumber)
+					err = addRoom(roomType, roomNumber)
 					if err != nil {
 						cls.CLS()
-						fmt.Println("Error creating user:", err)
+						fmt.Println("Error creating room:", err)
 					} else {
 						cls.CLS()
-						fmt.Println("User created successfully")
+						fmt.Println("Room created successfully")
 					}
 
 				case 2:
@@ -385,3 +396,5 @@ OuterLoop:
 		}
 	}
 }
+
+
