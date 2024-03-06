@@ -15,13 +15,14 @@ func adminFunction() {
 	var err error
 OuterLoop:
 	for {
-		fmt.Println("\nAdmin Menu:")
-		fmt.Println("1. Rooms")
-		fmt.Println("2. Employee function")
-		fmt.Println("3. Assign Doctor")
-		fmt.Println("4. Create Account")
-		fmt.Println("5. Go back to Main Menu")
-		fmt.Print("Enter your choice: ")
+		fmt.Print(`
+Admin Menu:
+1. Rooms
+2. Employee function
+3. Assign Doctor
+4. Create Account
+5. Go back to Main Menu 
+Enter your choice: `)
 		fmt.Scanln(&choice)
 		switch choice {
 		case 1:
@@ -30,13 +31,13 @@ OuterLoop:
 				if err != nil {
 					fmt.Println("Error reading room data:", err)
 				}
-
-				fmt.Println("\nRooms Menu:")
-				fmt.Println("1. Add room")
-				fmt.Println("2. Edit room")
-				fmt.Println("3. Delete room")
-				fmt.Println("4. Go back to Admin Menu")
-				fmt.Print("Enter your choice: ")
+				fmt.Print(`
+Rooms Menu:
+1. Add room
+2. Edit room
+3. Delete room
+4. Go back to Admin Menu
+Enter your Choice: `)
 				fmt.Scanln(&choice)
 
 				switch choice {
@@ -52,14 +53,25 @@ OuterLoop:
 					fmt.Scanln(&roomNumber)
 
 					// fmt.Printf("You entered room type: %s and room number: %d\n", roomType, roomNumber)
+					
+					// Check if the room number already exists
+					exists, err := checkRoomExists(roomNumber)
+					if err != nil {
+						fmt.Println("Error checking room:", err)
+						continue
+					}
+					if exists {
+						fmt.Println("ERROR! Room is already Existing")
+						continue
+					}
 
-					err := addRoom(roomType, roomNumber)
+					err = addRoom(roomType, roomNumber)
 					if err != nil {
 						cls.CLS()
-						fmt.Println("Error creating user:", err)
+						fmt.Println("Error creating room:", err)
 					} else {
 						cls.CLS()
-						fmt.Println("User created successfully")
+						fmt.Println("Room created successfully")
 					}
 
 				case 2:
@@ -85,19 +97,20 @@ OuterLoop:
 					fmt.Println("Invalid choice. Please try again.")
 				}
 			}
+
 		case 2:
 			for {
 				err = printEmployees()
 				if err != nil {
 					fmt.Println("Error reading employee data:", err)
 				}
-
-				fmt.Println("\nEmployee Menu:")
-				fmt.Println("1. Add Employee")
-				fmt.Println("2. Edit Employee")
-				fmt.Println("3. Delete Employee")
-				fmt.Println("4. Go back to Admin Menu")
-				fmt.Print("Enter your choice: ")
+				fmt.Print(`
+Employee Menu:
+1. Add Employee
+2. Edit Employee
+3. Delete Employee
+4. Go back to Admin Menu
+Enter your Choice: `)
 				fmt.Scanln(&choice)
 
 				switch choice {
@@ -106,27 +119,63 @@ OuterLoop:
 					// To read the whole line, use standard input scanner
 					var lastName, firstName, middleName, profession, specialization string
 
-					fmt.Print("Enter Last Name: ")
-					scanner.Scan()
-					lastName = scanner.Text()
+					for {
+						fmt.Print("Enter Last Name: ")
+						scanner.Scan()
+						lastName = scanner.Text()
+						if !isAlphaOrSpace(lastName) {
+							fmt.Println("Invalid input!")
+						} else {
+							break
+						}
+					}
+	
+					for {
+						fmt.Print("Enter First Name: ")
+						scanner.Scan()
+						firstName = scanner.Text()
+						if !isAlphaOrSpace(firstName) {
+							fmt.Println("Invalid input!")
+						} else {
+							break
+						}
+					}
+					
+					for {
+						fmt.Print("Enter Middle Name: ")
+						scanner.Scan()
+						middleName = scanner.Text()
+						if !isAlphaOrSpace(middleName) {
+							fmt.Println("Invalid input!")
+						} else {
+							break
+						}
+					}
 
-					fmt.Print("Enter First Name: ")
-					scanner.Scan()
-					firstName = scanner.Text()
+					for{
+						fmt.Print("Enter Profession: ")
+						scanner.Scan()
+						profession = scanner.Text()
+						if !isAlphaOrSpace(firstName) {
+							fmt.Println("Invalid input!")
+						} else {
+							break
+						}
+					}
 
-					fmt.Print("Enter Middle Name: ")
-					scanner.Scan()
-					middleName = scanner.Text()
-
-					fmt.Print("Enter Profession: ")
-					scanner.Scan()
-					profession = scanner.Text()
-
-					fmt.Print("Enter Specialization(N/A for non-doctors): ")
-					scanner.Scan()
-					specialization = scanner.Text()
+					for{
+						fmt.Print("Enter Specialization(N/A for non-doctors): ")
+						scanner.Scan()
+						specialization = scanner.Text()
+						if !isAlphaOrSpace(firstName) {
+							fmt.Println("Invalid input!")
+						} else {
+							break
+						}
+					}
 
 					err := addEmployee(lastName, firstName, middleName, profession, specialization)
+
 					if err != nil {
 						cls.CLS()
 						fmt.Println("Error creating user:", err)
@@ -137,6 +186,7 @@ OuterLoop:
 
 				case 2:
 					fmt.Println("To be edited soon")
+
 				case 3:
 					var hp_id string
 
@@ -168,20 +218,21 @@ OuterLoop:
 				if err != nil {
 					fmt.Println("Error deleting doctor & room data:", err)
 				}
-				fmt.Println("\nAssign Menu:")
-				fmt.Println("1. Assign Doctor Room")
-				fmt.Println("2. Edit Doctor Room")
-				fmt.Println("3. Remove Doctor Room")
-				fmt.Println("4. Assign Doctor Time")
-				fmt.Println("5. Edit Doctor Time")
-				fmt.Println("6. Remove Doctor Time")
-				fmt.Println("7. Go back to Admin Menu")
-				fmt.Print("Enter your choice: ")
+				fmt.Print(`
+Assign Menu:	
+1. Assign Doctor Room
+2. Edit Doctor Room
+3. Remove Doctor Room
+4. Assign Doctor Time 
+5. Edit Doctor Time
+6. Remove Doctor Time
+7. Go back to Admin Menu
+Enter your Choice: `)
 				fmt.Scanln(&choice)
 
 				switch choice {
 				case 1:
-					fmt.Println("Room Data:")
+					fmt.Println("\nRoom Data:")
 					err = printRooms()
 					if err != nil {
 						fmt.Println("Error reading room data:", err)
@@ -385,3 +436,5 @@ OuterLoop:
 		}
 	}
 }
+
+
