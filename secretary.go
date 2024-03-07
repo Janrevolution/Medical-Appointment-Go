@@ -13,7 +13,11 @@ import (
 
 // NOT IMPERATIVE
 func isAlphaOrSpace(s string) bool {
-	for _, r := range s {
+	trimmed := strings.TrimSpace(s)
+	if len(trimmed) == 0 {
+		return false
+	}
+	for _, r := range trimmed {
 		if !unicode.IsLetter(r) && !unicode.IsSpace(r) {
 			return false
 		}

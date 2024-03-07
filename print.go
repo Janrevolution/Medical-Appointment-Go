@@ -30,7 +30,7 @@ func printRooms() error {
 			return err
 		}
 
-		fmt.Printf("Room Number: %s, Capacity: %s\n", roomNumber, capacity)
+		fmt.Printf("Room Number: %s, Room Type: %s\n", roomNumber, capacity)
 	}
 
 	if err := rows.Err(); err != nil {
