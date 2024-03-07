@@ -203,6 +203,52 @@ Enter your choice: `)
 				if err != nil {
 					fmt.Println("Error reading reserved patient data:", err)
 				}
+
+				err = freeTime()
+				if err != nil {
+					fmt.Println("Error reading doctor free time data:", err)
+				}
+
+				var reserveId, timeId string
+				fmt.Print("Enter reserve ID to be edited: ")
+				fmt.Scanln(&reserveId)
+				reserveId, err = getIdTemp(reserveId, "appoint")
+				if err != nil {
+					fmt.Println("Error reservation ID:", err)
+				}
+
+				fmt.Print("Enter time ID to be changed to: ")
+				fmt.Scanln(&timeId)
+				timeId, err = getIdTemp(timeId, "newTime")
+				if err != nil {
+					fmt.Println("Error getting time ID:", err)
+				}
+				query := "UPDATE tbl_appointment_details SET time = ? WHERE reserve_id = ?"
+				err = SQLManager(query, timeId, reserveId)
+				if err != nil {
+					fmt.Println("Error executing SQL query: ", err)
+				}
+				fmt.Println("Updated time for the patient!")
+			case 3:
+				err = printReservedPatients()
+				if err != nil {
+					fmt.Println("Error reading reserved patient data:", err)
+				}
+
+				var reserveId string
+				fmt.Print("Enter reserve ID to be deleted: ")
+				fmt.Scanln(&reserveId)
+				reserveId, err = getIdTemp(reserveId, "appoint")
+				if err != nil {
+					fmt.Println("Error reservation ID:", err)
+				}
+
+				query := "DELETE FROM tbl_appointment_details WHERE reserve_id = ?"
+				err = SQLManager(query, reserveId)
+				if err != nil {
+					fmt.Println("Error executing SQL query: ", err)
+				}
+				fmt.Println("Deleted Reservation!")
 			case 4:
 				secretary(empId)
 			}
