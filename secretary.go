@@ -129,6 +129,7 @@ Enter your choice: `)
 				secretary(empId)
 			}
 		case 2:
+			fmt.Println("Free slots for the day are: ")
 			err = freeTime()
 			if err != nil {
 				fmt.Println("Error reading doctor free time data:", err)
