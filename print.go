@@ -382,13 +382,14 @@ func freeTime() error {
 	defer db.Close()
 
 	rows, err := db.Query(`
-        SELECT CONCAT(e.first_name, ' ', e.middle_name, ' ', e.last_name) AS doctor_name, e.specialization, td.rd_id, td.time_id, DATE_FORMAT(t.start_time, '%h:%i:%s %p') AS formatted_start_time, DATE_FORMAT(t.end_time, '%h:%i:%s %p') AS formatted_end_time
-        FROM tbl_employees e
-        JOIN tbl_room_doctor rd ON e.emp_id = rd.doctor_id_fk
-        JOIN tbl_time_doctor td ON rd.rd_id = td.rd_id
-        JOIN tbl_time t ON td.time_id = t.time_id
-        LEFT JOIN tbl_avail_doctor ad ON td.ad_id = ad.ad_id AND ad.date = CURDATE()
-        WHERE ad.date IS NULL;
+			SELECT CONCAT(e.first_name, ' ', e.middle_name, ' ', e.last_name) AS doctor_name, e.specialization, td.rd_id, td.time_id, DATE_FORMAT(t.start_time, '%h:%i:%s %p') AS formatted_start_time, DATE_FORMAT(t.end_time, '%h:%i:%s %p') AS formatted_end_time
+			FROM tbl_employees e
+			JOIN tbl_room_doctor rd ON e.emp_id = rd.doctor_id_fk
+			JOIN tbl_time_doctor td ON rd.rd_id = td.rd_id
+			JOIN tbl_time t ON td.time_id = t.time_id
+			LEFT JOIN tbl_avail_doctor ad ON td.ad_id = ad.ad_id AND ad.date = CURDATE()
+			LEFT JOIN tbl_appointment_details ap ON td.rd_id = ap.rd_id AND t.time_id = ap.time AND ap.date = CURDATE()
+			WHERE ad.date IS NULL AND ap.reserve_id IS NULL;
     `)
 	if err != nil {
 		return err
