@@ -4,11 +4,25 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-
+	"regexp"
+	"strings"
 	"github.com/MasterDimmy/go-cls"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 )
+
+
+func isRoomTypeValid(roomType string) bool {
+	match, _ := regexp.MatchString("^[a-zA-Z]+$", roomType)
+	return match
+}
+
+// Implement checkRoomExists and addRoom functions here
+
+func clearInputBuffer() {
+	reader := bufio.NewReader(os.Stdin)
+	reader.ReadString('\n')
+}
 
 func adminFunction() {
 	scanner := bufio.NewScanner(os.Stdin)
@@ -17,12 +31,13 @@ func adminFunction() {
 OuterLoop:
 	for {
 		fmt.Print(`
-Admin Menu:
-1. Rooms
-2. Employee function
-3. Assign Doctor
-4. Create Account
-5. Go back to Main Menu 
+==========Admin Menu=========
+| [1] Rooms                 |
+| [2] Employee function     |
+| [3] Assign Doctor         |
+| [4] Create Account        |
+| [5] Go back to Main Menu  |
+=============================
 Enter your choice: `)
 		fmt.Scanln(&choice)
 		switch choice {
@@ -33,40 +48,62 @@ Enter your choice: `)
 					fmt.Println("Error reading room data:", err)
 				}
 				fmt.Print(`
-Rooms Menu:
-1. Add room
-2. Edit room
-3. Delete room
-4. Go back to Admin Menu
-Enter your Choice: `)
+==========Rooms Menu==========
+| [1] Add room               |
+| [2] Edit room              |
+| [3] Delete room            |
+| [4] Go back to Admin Menu  |
+==============================
+Enter your Choice: `) 
 				fmt.Scanln(&choice)
 
 				switch choice {
 				case 1:
-					// To read the whole line, use standard input scanner
 					var roomType string
-					fmt.Print("Enter the room type: ")
-					scanner.Scan()
-					roomType = scanner.Text()
-
 					var roomNumber int
-					fmt.Print("Enter the room number: ")
-					fmt.Scanln(&roomNumber)
+					scanner := bufio.NewScanner(os.Stdin)
 
-					// fmt.Printf("You entered room type: %s and room number: %d\n", roomType, roomNumber)
+					for {
+						fmt.Print("Enter the room type: ")
+						scanner.Scan()
+						roomType = scanner.Text()
 
-					// Check if the room number already exists
-					exists, err := checkRoomExists(roomNumber)
-					if err != nil {
-						fmt.Println("Error checking room:", err)
-						continue
+						// Check if the room type is valid
+						if !isRoomTypeValid(roomType) {
+							fmt.Println("Invalid Input! Room type should only contain letters.")
+						} else {
+							// Convert room type to uppercase
+							roomType = strings.ToUpper(roomType)
+							break
+						}
 					}
-					if exists {
-						fmt.Println("ERROR! Room is already Existing")
-						continue
+
+					for {
+						fmt.Print("Enter the room number: ")
+						n, err := fmt.Scanln(&roomNumber)
+
+						// Check if the room number is valid
+						if err != nil || n != 1 {
+							fmt.Println("Invalid Input! Room number should be a number.")
+							clearInputBuffer()
+							continue
+						}
+
+						// Check if the room number already exists
+						exists, err := checkRoomExists(roomNumber)
+						if err != nil {
+							fmt.Println("Error checking room:", err)
+							continue
+						}
+						if exists {
+							fmt.Println("ERROR! Room is already Existing")
+							continue
+						}
+
+						break
 					}
 
-					err = addRoom(roomType, roomNumber)
+					err := addRoom(roomType, roomNumber)
 					if err != nil {
 						cls.CLS()
 						fmt.Println("Error creating room:", err)
@@ -74,7 +111,6 @@ Enter your Choice: `)
 						cls.CLS()
 						fmt.Println("Room created successfully")
 					}
-
 				case 2:
 					fmt.Println("To be edited soon")
 				case 3:
@@ -106,7 +142,7 @@ Enter your Choice: `)
 					fmt.Println("Error reading employee data:", err)
 				}
 				fmt.Print(`
-Employee Menu:
+-----Employee Menu-----
 1. Add Employee
 2. Edit Employee
 3. Delete Employee
@@ -219,7 +255,7 @@ Enter your Choice: `)
 				if err != nil {
 					fmt.Println("Error deleting doctor & room data:", err)
 				}
-				fmt.Println("\nAssign Menu:")
+				fmt.Println("\n-----Assign Menu-----")
 				fmt.Println("1. Assign Doctor Room")
 				fmt.Println("2. Edit Doctor Room")
 				fmt.Println("3. Remove Doctor Room")
