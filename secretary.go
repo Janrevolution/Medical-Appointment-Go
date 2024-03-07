@@ -141,7 +141,8 @@ Enter your choice: `)
 			}
 			fmt.Println("1. Add Reservation")
 			fmt.Println("2. Edit Reservation")
-			fmt.Println("2. Delete Reservation")
+			fmt.Println("3. Delete Reservation")
+			fmt.Println("4. Go back to Secretary Menu")
 			fmt.Print("Enter your choice: ")
 			fmt.Scanln(&choice)
 			switch choice {
@@ -193,7 +194,17 @@ Enter your choice: `)
 					fmt.Println("Error executing SQL query: ", err)
 				}
 				fmt.Println("Added time to doctor")
+			case 2:
+				err = printReservedPatients()
+				if err != nil {
+					fmt.Println("Error reading reserved patient data:", err)
+				}
+			case 4:
+				secretary(empId)
 			}
+
+		case 3:
+			main()
 		}
 	}
 }

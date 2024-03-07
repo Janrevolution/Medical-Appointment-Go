@@ -76,7 +76,6 @@ func login() {
 func main() {
 	var choice int
 	var username, password string
-
 	for {
 		fmt.Print(`
 Main Menu:

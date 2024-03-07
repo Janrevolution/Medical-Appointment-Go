@@ -432,3 +432,58 @@ func freeTime() error {
 
 	return nil
 }
+
+func printReservedPatients() error {
+	db, err := connectDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	rows, err := db.Query(`
+        SELECT ad.reserve_id, ad.date, 
+        DATE_FORMAT(t.start_time, '%h:%i:%s %p') AS start_time, 
+        DATE_FORMAT(t.end_time, '%h:%i:%s %p') AS end_time,
+        t.time_id,
+        p.first_name AS patient_first_name,
+        p.middle_name AS patient_middle_name,
+        p.last_name AS patient_last_name,
+        e.first_name AS doctor_first_name,
+        e.middle_name AS doctor_middle_name,
+        e.last_name AS doctor_last_name
+        FROM tbl_appointment_details ad
+        JOIN tbl_time t ON ad.time = t.time_id
+        JOIN tbl_patients p ON ad.patient_id_fk = p.patient_id
+        JOIN tbl_room_doctor rd ON ad.rd_id = rd.rd_id
+        JOIN tbl_employees e ON rd.doctor_id_fk = e.emp_id;
+    `)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var (
+			reserveID, date, startTime, endTime,
+			timeID, patientFirstName, patientMiddleName, patientLastName,
+			doctorFirstName, doctorMiddleName, doctorLastName string
+		)
+		if err := rows.Scan(&reserveID, &date, &startTime, &endTime, &timeID,
+			&patientFirstName, &patientMiddleName, &patientLastName,
+			&doctorFirstName, &doctorMiddleName, &doctorLastName); err != nil {
+			return err
+		}
+		reserveID = strings.Split(reserveID, "-")[0]
+		timeID = strings.Split(timeID, "-")[0]
+		fmt.Printf("Reserve ID: %s | Date: %s | Start Time: %s | End Time: %s | Time ID: %s | Patient Name: %s  %s %s | Doctor Name: %s  %s  %s\n",
+			reserveID, date, startTime, endTime, timeID,
+			patientFirstName, patientMiddleName, patientLastName,
+			doctorFirstName, doctorMiddleName, doctorLastName)
+	}
+
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
