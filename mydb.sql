@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 08, 2024 at 06:22 AM
+-- Generation Time: Mar 08, 2024 at 12:56 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -33,14 +33,6 @@ CREATE TABLE `tbl_accounts` (
   `password` varchar(32) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `tbl_accounts`
---
-
-INSERT INTO `tbl_accounts` (`emp_id`, `username`, `password`) VALUES
-('2e13f66a-6197-4e03-81fc-e3e12dba841f', 'asd', 'asd'),
-('7ce88b9f-d80f-4945-a018-e448620d3f76', 'qwe', 'qwe');
-
 -- --------------------------------------------------------
 
 --
@@ -57,15 +49,6 @@ CREATE TABLE `tbl_appointment_details` (
   `description` varchar(256) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `tbl_appointment_details`
---
-
-INSERT INTO `tbl_appointment_details` (`reserve_id`, `patient_id_fk`, `rd_id`, `date`, `time`, `secretary_id`, `description`) VALUES
-('04491882-a7cb-4e2e-8c65-500cd8824854', '62c17a1f-88a0-43e3-96ea-cbc5a1d899a1', '309369fd-3510-480e-9734-6c75429dfa1f', '2024-03-08', '88fa1dc0-db0d-11ee-9efc-902e16b789a2', '2e13f66a-6197-4e03-81fc-e3e12dba841f', 'Headache'),
-('6c809c7a-4243-4824-8c48-e82fb26cffc8', '62c17a1f-88a0-43e3-96ea-cbc5a1d899a1', '309369fd-3510-480e-9734-6c75429dfa1f', '2024-03-10', '88fa1e44-db0d-11ee-9efc-902e16b789a2', '2e13f66a-6197-4e03-81fc-e3e12dba841f', 'Head'),
-('8a4faea3-cce8-4728-aa20-5e5f12c8305b', '670c3a68-c49f-4832-841c-ecce825889f4', '309369fd-3510-480e-9734-6c75429dfa1f', '2024-03-08', '88fa1e1c-db0d-11ee-9efc-902e16b789a2', '2e13f66a-6197-4e03-81fc-e3e12dba841f', 'Migraine');
-
 -- --------------------------------------------------------
 
 --
@@ -77,13 +60,6 @@ CREATE TABLE `tbl_avail_doctor` (
   `date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `tbl_avail_doctor`
---
-
-INSERT INTO `tbl_avail_doctor` (`ad_id`, `date`) VALUES
-('25c458c7-2d65-4c00-b7dc-d435d73f0d7f', '2024-03-07');
-
 -- --------------------------------------------------------
 
 --
@@ -92,7 +68,6 @@ INSERT INTO `tbl_avail_doctor` (`ad_id`, `date`) VALUES
 
 CREATE TABLE `tbl_employees` (
   `emp_id` varchar(64) NOT NULL,
-  `hp_id` varchar(64) NOT NULL,
   `last_name` varchar(32) NOT NULL,
   `first_name` varchar(32) NOT NULL,
   `middle_name` varchar(32) NOT NULL,
@@ -104,10 +79,8 @@ CREATE TABLE `tbl_employees` (
 -- Dumping data for table `tbl_employees`
 --
 
-INSERT INTO `tbl_employees` (`emp_id`, `hp_id`, `last_name`, `first_name`, `middle_name`, `profession`, `specialization`) VALUES
-('2e13f66a-6197-4e03-81fc-e3e12dba841f', 'HPID-1709756205981', 'SecLast', 'SecFirst', 'SecMiddle', 'Secretary', 'N/A'),
-('67efc7e0-4445-4370-a3dd-55bd2adfe8ae', 'HPID-1709663170820', 'TempLast', 'TempFirst', 'TempMiddle', 'Doctor', 'General Surgery'),
-('7ce88b9f-d80f-4945-a018-e448620d3f76', 'HPID-1709657591169', 'Villadores', 'Janrev Lance', 'Florig', 'Doctor', 'Cardiologist');
+INSERT INTO `tbl_employees` (`emp_id`, `last_name`, `first_name`, `middle_name`, `profession`, `specialization`) VALUES
+('fc52248c-31e6-493f-8abc-327b66ca7d32', 'qwe', 'qwe', 'qwe', 'Doctor', 'qwe');
 
 -- --------------------------------------------------------
 
@@ -124,14 +97,6 @@ CREATE TABLE `tbl_patients` (
   `gender` varchar(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `tbl_patients`
---
-
-INSERT INTO `tbl_patients` (`patient_id`, `last_name`, `first_name`, `middle_name`, `age`, `gender`) VALUES
-('62c17a1f-88a0-43e3-96ea-cbc5a1d899a1', 'PatLast', 'PatFirst', 'PatMiddle', 18, 'male'),
-('670c3a68-c49f-4832-841c-ecce825889f4', 'temp', 'tempbro', 'tempyeah', 20, 'male');
-
 -- --------------------------------------------------------
 
 --
@@ -143,13 +108,6 @@ CREATE TABLE `tbl_patient_diagnosis` (
   `diagnosis` varchar(512) DEFAULT NULL,
   `doctor_id` varchar(64) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `tbl_patient_diagnosis`
---
-
-INSERT INTO `tbl_patient_diagnosis` (`reserve_id`, `diagnosis`, `doctor_id`) VALUES
-('04491882-a7cb-4e2e-8c65-500cd8824854', 'HeadAche', '7ce88b9f-d80f-4945-a018-e448620d3f76');
 
 -- --------------------------------------------------------
 
@@ -168,8 +126,7 @@ CREATE TABLE `tbl_rooms` (
 --
 
 INSERT INTO `tbl_rooms` (`room_id`, `room_number`, `room_type`) VALUES
-('86244457-fe8a-4613-bcbc-35dfbf67dfed', '2', 'Basic'),
-('95082190-9d88-483a-88b6-80b8723bc93d', '1', 'Basic');
+('646fb662-4cb4-4a0d-9281-954ae42b1859', '1', 'BASIC');
 
 -- --------------------------------------------------------
 
@@ -182,14 +139,6 @@ CREATE TABLE `tbl_room_doctor` (
   `doctor_id_fk` varchar(64) DEFAULT NULL,
   `room_id_fk` varchar(64) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `tbl_room_doctor`
---
-
-INSERT INTO `tbl_room_doctor` (`rd_id`, `doctor_id_fk`, `room_id_fk`) VALUES
-('309369fd-3510-480e-9734-6c75429dfa1f', '7ce88b9f-d80f-4945-a018-e448620d3f76', '95082190-9d88-483a-88b6-80b8723bc93d'),
-('46435dcb-8fef-488a-89d5-0aa011a15dec', '67efc7e0-4445-4370-a3dd-55bd2adfe8ae', '86244457-fe8a-4613-bcbc-35dfbf67dfed');
 
 -- --------------------------------------------------------
 
@@ -244,17 +193,6 @@ CREATE TABLE `tbl_time_doctor` (
   `time_id` varchar(64) NOT NULL,
   `ad_id` varchar(64) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `tbl_time_doctor`
---
-
-INSERT INTO `tbl_time_doctor` (`rd_id`, `time_id`, `ad_id`) VALUES
-('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1e71-db0d-11ee-9efc-902e16b789a2', '25c458c7-2d65-4c00-b7dc-d435d73f0d7f'),
-('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1e1c-db0d-11ee-9efc-902e16b789a2', '2e74dd53-c198-468f-8c55-e7d087989640'),
-('46435dcb-8fef-488a-89d5-0aa011a15dec', '88fa1cef-db0d-11ee-9efc-902e16b789a2', '74d87ec0-6ab2-491e-bd9d-e17d1d703f75'),
-('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1e44-db0d-11ee-9efc-902e16b789a2', 'bd47d931-feb6-4017-8b38-0ddfaec7d4aa'),
-('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1dc0-db0d-11ee-9efc-902e16b789a2', 'd8adaeb2-d3a4-46f0-b689-569d320daa51');
 
 --
 -- Indexes for dumped tables
