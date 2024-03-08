@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"unicode"
 	"time"
+	"unicode"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
@@ -27,7 +27,7 @@ func isAlphaOrSpace(s string) bool {
 }
 
 func secretary(empId string) {
-	
+
 	scanner := bufio.NewScanner(os.Stdin)
 	var choice int
 	var err error
@@ -135,174 +135,175 @@ Enter your choice: `)
 				secretary(empId)
 			}
 		case 2:
-			reservationMenu:
-			for{
+		reservationMenu:
+			for {
 				fmt.Println("Free slots for the day are: ")
-			err = freeTime()
-			if err != nil {
-				fmt.Println("Error reading doctor free time data:", err)
-			}
-			fmt.Println()
-			err = printPatients()
-			if err != nil {
-				fmt.Println("Error reading patientsdata:", err)
-			}
-			fmt.Println("---------Reservation Menu---------")
-			fmt.Println("| [1] Add Reservation            |")
-			fmt.Println("| [2] Edit Reservation           |")
-			fmt.Println("| [3] Delete Reservation         |")
-			fmt.Println("| [4] Go back to Secretary Menu  |")
-			fmt.Println("----------------------------------")
-			fmt.Print(`Enter your choice: `)
-			fmt.Scanln(&choice)
-
-			switch choice {
-			case 1:
-				reader := bufio.NewReader(os.Stdin)
 				err = freeTime()
 				if err != nil {
 					fmt.Println("Error reading doctor free time data:", err)
 				}
+
 				fmt.Println()
 				err = printPatients()
 				if err != nil {
 					fmt.Println("Error reading patientsdata:", err)
 				}
+				fmt.Println("---------Reservation Menu---------")
+				fmt.Println("| [1] Add Reservation            |")
+				fmt.Println("| [2] Edit Reservation           |")
+				fmt.Println("| [3] Delete Reservation         |")
+				fmt.Println("| [4] Go back to Secretary Menu  |")
+				fmt.Println("----------------------------------")
+				fmt.Print(`Enter your choice: `)
+				fmt.Scanln(&choice)
 
-				var patientId, rdId, timeId, date, description string
-
-				for{
-					fmt.Print("Enter the Patient's ID: ")
-					fmt.Scanln(&patientId)
-					patientId, err := getIdTemp(patientId, "patient")
-					if patientId == ""{
-						continue reservationMenu
-					}
+				switch choice {
+				case 1:
+					reader := bufio.NewReader(os.Stdin)
+					err = freeTime()
 					if err != nil {
-					fmt.Println("Error getting patient ID:", err)
-					}else{
+						fmt.Println("Error reading doctor free time data:", err)
+					}
+					fmt.Println()
+					err = printPatients()
+					if err != nil {
+						fmt.Println("Error reading patientsdata:", err)
+					}
+
+					var patientId, rdId, timeId, date, description string
+
+					for {
+						fmt.Print("Enter the Patient's ID: ")
+						fmt.Scanln(&patientId)
+						patientId, err := getIdTemp(patientId, "patient")
+						if patientId == "" {
+							continue reservationMenu
+						}
+						if err != nil {
+							fmt.Println("Error getting patient ID:", err)
+						} else {
+							break
+						}
+					}
+
+					for {
+						fmt.Print("Enter Room Doctor's ID: ")
+						fmt.Scanln(&rdId)
+						rdId, err = getIdTemp(rdId, "time_doctorRD")
+						if rdId == "" {
+							continue reservationMenu
+						}
+						if err != nil {
+							fmt.Println("Error getting time ID:", err)
+						} else {
+							break
+						}
+					}
+
+					for {
+						fmt.Print("Enter the date to be unavailable (YYYY-MM-DD) [enter if you want to go back to assign menu]: ")
+						date, _ = reader.ReadString('\n')
+						date = strings.TrimSpace(date) // Remove the newline character
+
+						if date == "" {
+							continue reservationMenu
+						}
+						// Check if date is in the correct format
+						_, err := time.Parse("2006-01-02", date)
+						if err != nil {
+							fmt.Println("Invalid date format. Please enter a date in the format YYYY-MM-DD.")
+							continue
+						}
 						break
 					}
-				}
 
-				for{
-					fmt.Print("Enter Room Doctor's ID: ")
-					fmt.Scanln(&rdId)
-					rdId, err = getIdTemp(rdId, "time_doctorRD")
-					if rdId==""{
-						continue reservationMenu
+					for {
+						fmt.Print("Enter Time ID: ")
+						fmt.Scanln(&timeId)
+						timeId, err = getIdTemp(timeId, "time_doctorT")
+						if timeId == "" {
+							continue reservationMenu
+						}
+						if err != nil {
+							fmt.Println("Error getting time ID:", err)
+						} else {
+							break
+						}
 					}
+
+					for {
+						fmt.Print("Enter brief symptoms: ")
+						fmt.Scanln(&description)
+						if description == "" {
+							continue reservationMenu
+						} else {
+							break
+						}
+					}
+
+					uuid := uuid.New().String()
+
+					query := "INSERT INTO tbl_appointment_details (reserve_id, patient_id_fk, rd_id, date, time, secretary_id, description) VALUES (?, ?, ?, ?, ?, ?, ?)"
+					err = SQLManager(query, uuid, patientId, rdId, date, timeId, empId, description)
 					if err != nil {
-						fmt.Println("Error getting time ID:", err)
-					}else{
-						break
+						fmt.Println("Error executing SQL query: ", err)
+					} else {
+						fmt.Println("Added time to doctor")
 					}
-				}
-				
-				for {
-					fmt.Print("Enter the date to be unavailable (YYYY-MM-DD) [enter if you want to go back to assign menu]: ")
-					date, _ = reader.ReadString('\n')
-					date = strings.TrimSpace(date)  // Remove the newline character
-
-					if date == "" {
-						continue reservationMenu
-					}
-					// Check if date is in the correct format
-					_, err := time.Parse("2006-01-02", date)
+				case 2:
+					err = printReservedPatients()
 					if err != nil {
-						fmt.Println("Invalid date format. Please enter a date in the format YYYY-MM-DD.")
-						continue
+						fmt.Println("Error reading reserved patient data:", err)
 					}
-					break
-				}
 
-				for{
-					fmt.Print("Enter Time ID: ")
+					err = freeTime()
+					if err != nil {
+						fmt.Println("Error reading doctor free time data:", err)
+					}
+
+					var reserveId, timeId string
+					fmt.Print("Enter reserve ID to be edited: ")
+					fmt.Scanln(&reserveId)
+					reserveId, err = getIdTemp(reserveId, "appoint")
+					if err != nil {
+						fmt.Println("Error reservation ID:", err)
+					}
+
+					fmt.Print("Enter time ID to be changed to: ")
 					fmt.Scanln(&timeId)
-					timeId, err = getIdTemp(timeId, "time_doctorT")
-					if timeId == ""{
-						continue reservationMenu
-					}
+					timeId, err = getIdTemp(timeId, "newTime")
 					if err != nil {
 						fmt.Println("Error getting time ID:", err)
-					}else{
-						break
 					}
-				}
-
-				for{
-					fmt.Print("Enter brief symptoms: ")
-					fmt.Scanln(&description)
-					if description==""{
-						continue reservationMenu
-					}else{
-						break
+					query := "UPDATE tbl_appointment_details SET time = ? WHERE reserve_id = ?"
+					err = SQLManager(query, timeId, reserveId)
+					if err != nil {
+						fmt.Println("Error executing SQL query: ", err)
 					}
-				}
+					fmt.Println("Updated time for the patient!")
+				case 3:
+					err = printReservedPatients()
+					if err != nil {
+						fmt.Println("Error reading reserved patient data:", err)
+					}
 
-				uuid := uuid.New().String()
+					var reserveId string
+					fmt.Print("Enter reserve ID to be deleted: ")
+					fmt.Scanln(&reserveId)
+					reserveId, err = getIdTemp(reserveId, "appoint")
+					if err != nil {
+						fmt.Println("Error reservation ID:", err)
+					}
 
-				query := "INSERT INTO tbl_appointment_details (reserve_id, patient_id_fk, rd_id, date, time, secretary_id, description) VALUES (?, ?, ?, ?, ?, ?, ?)"
-				err = SQLManager(query, uuid, patientId, rdId, date, timeId, empId, description)
-				if err != nil {
-					fmt.Println("Error executing SQL query: ", err)
-				} else{
-					fmt.Println("Added time to doctor")
+					query := "DELETE FROM tbl_appointment_details WHERE reserve_id = ?"
+					err = SQLManager(query, reserveId)
+					if err != nil {
+						fmt.Println("Error executing SQL query: ", err)
+					}
+					fmt.Println("Deleted Reservation!")
+				case 4:
+					secretary(empId)
 				}
-			case 2:
-				err = printReservedPatients()
-				if err != nil {
-					fmt.Println("Error reading reserved patient data:", err)
-				}
-
-				err = freeTime()
-				if err != nil {
-					fmt.Println("Error reading doctor free time data:", err)
-				}
-
-				var reserveId, timeId string
-				fmt.Print("Enter reserve ID to be edited: ")
-				fmt.Scanln(&reserveId)
-				reserveId, err = getIdTemp(reserveId, "appoint")
-				if err != nil {
-					fmt.Println("Error reservation ID:", err)
-				}
-
-				fmt.Print("Enter time ID to be changed to: ")
-				fmt.Scanln(&timeId)
-				timeId, err = getIdTemp(timeId, "newTime")
-				if err != nil {
-					fmt.Println("Error getting time ID:", err)
-				}
-				query := "UPDATE tbl_appointment_details SET time = ? WHERE reserve_id = ?"
-				err = SQLManager(query, timeId, reserveId)
-				if err != nil {
-					fmt.Println("Error executing SQL query: ", err)
-				}
-				fmt.Println("Updated time for the patient!")
-			case 3:
-				err = printReservedPatients()
-				if err != nil {
-					fmt.Println("Error reading reserved patient data:", err)
-				}
-
-				var reserveId string
-				fmt.Print("Enter reserve ID to be deleted: ")
-				fmt.Scanln(&reserveId)
-				reserveId, err = getIdTemp(reserveId, "appoint")
-				if err != nil {
-					fmt.Println("Error reservation ID:", err)
-				}
-
-				query := "DELETE FROM tbl_appointment_details WHERE reserve_id = ?"
-				err = SQLManager(query, reserveId)
-				if err != nil {
-					fmt.Println("Error executing SQL query: ", err)
-				}
-				fmt.Println("Deleted Reservation!")
-			case 4:
-				secretary(empId)
-			}
 			}
 		case 3:
 			main()
