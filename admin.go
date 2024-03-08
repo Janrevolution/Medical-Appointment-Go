@@ -103,27 +103,28 @@ Enter your Choice: `)
 						break
 					}
 
-					err := addRoom(roomType, roomNumber)
+					uuid := uuid.New().String()
+
+					query := "INSERT INTO tbl_rooms (room_id, room_number, room_type) VALUES (?,?,?)"
+					err = SQLManager(query, uuid, roomNumber, roomType)
 					if err != nil {
-						cls.CLS()
-						fmt.Println("Error creating room:", err)
-					} else {
-						cls.CLS()
-						fmt.Println("Room created successfully")
+						fmt.Println("Error executing SQL query: ", err)
+						continue
 					}
+					fmt.Println("Room added successfully.")
 				case 2:
 					var roomNumber string
 					fmt.Print("Enter the room number to be deleted: ")
 					fmt.Scanln(&roomNumber)
 
-					err := deleteRecord(roomNumber, "room")
+					query := "DELETE FROM tbl_rooms WHERE room_number=?"
+					err = SQLManager(query, roomNumber)
 					if err != nil {
-						cls.CLS()
-						fmt.Println("Error deleting room:", err)
-					} else {
-						cls.CLS()
-						fmt.Println("Room deleted successfully")
+						fmt.Println("Error executing SQL query: ", err)
+						continue
 					}
+					fmt.Println("Room Deleted Successfully")
+
 				case 3:
 					fmt.Println("Going back to Admin Menu...")
 					continue OuterLoop
@@ -208,30 +209,39 @@ Enter your Choice: `)
 						}
 					}
 
-					err := addEmployee(lastName, firstName, middleName, profession, specialization)
+					uuid := uuid.New().String()
 
+					query := "INSERT INTO tbl_employees (emp_id, last_name, first_name, middle_name, profession, specialization) VALUES (?,?,?,?,?,?)"
+					err = SQLManager(query, uuid, lastName, firstName, middleName, profession, specialization)
 					if err != nil {
-						cls.CLS()
-						fmt.Println("Error creating user:", err)
-					} else {
-						cls.CLS()
-						fmt.Println("User created successfully")
+						fmt.Println("Error executing SQL query: ", err)
+						continue
 					}
+					fmt.Println("Patient added successfully.")
+
 				case 2:
-					var hp_id string
+					err = printEmployees()
+					if err != nil {
+						fmt.Println("Error reading employee data:", err)
+					}
+
+					var empId string
 
 					fmt.Print("Enter Employee ID to be deleted: ")
-					scanner.Scan()
-					hp_id = scanner.Text()
-
-					err := deleteRecord(hp_id, "employee")
+					fmt.Scanln(&empId)
+					empId, err = getIdTemp(empId, "employee")
 					if err != nil {
-						cls.CLS()
-						fmt.Println("Error removing Employee:", err)
-					} else {
-						cls.CLS()
-						fmt.Println("Employee removed successfully")
+						fmt.Println("Error reservation ID:", err)
 					}
+
+					query := "DELETE FROM tbl_employees WHERE emp_id=?"
+					err = SQLManager(query, empId)
+					if err != nil {
+						fmt.Println("Error executing SQL query: ", err)
+						continue
+					}
+					fmt.Println("Employee Deleted Successfully")
+
 				case 3:
 					fmt.Println("Going back to Admin Menu...")
 					continue OuterLoop
@@ -281,24 +291,32 @@ Enter your Choice: `)
 					}
 
 					// To read the whole line, use standard input scanner
-					var roomNumber string
-					fmt.Print("\nEnter room number: ")
-					scanner.Scan()
-					roomNumber = scanner.Text()
-
-					var doctorId string
-					fmt.Print("Enter doctor ID: ")
-					scanner.Scan()
-					doctorId = scanner.Text()
-
-					err := assignDoctor(roomNumber, doctorId)
+					var roomId, doctorId string
+					fmt.Print("\nEnter room ID: ")
+					fmt.Scanln(&roomId)
+					roomId, err = getIdTemp(roomId, "room")
 					if err != nil {
-						cls.CLS()
-						fmt.Println("Error assigning a doctor:", err)
-					} else {
-						cls.CLS()
-						fmt.Println("Successfully assigned doctor to a room!")
+						fmt.Println("Error getting doctor ID:", err)
+						continue
 					}
+
+					fmt.Print("Enter doctor ID: ")
+					fmt.Scanln(&doctorId)
+					doctorId, err = getIdTemp(doctorId, "employee")
+					if err != nil {
+						fmt.Println("Error getting doctor ID:", err)
+						continue
+					}
+
+					uuid := uuid.New().String()
+					query := "INSERT INTO tbl_room_doctor (rd_id, doctor_id_fk, room_id_fk) VALUES (?, ?, ?)"
+					err = SQLManager(query, uuid, doctorId, roomId)
+					if err != nil {
+						fmt.Println("Error executing SQL query: ", err)
+					} else {
+						fmt.Println("Assigned doctor to a room")
+					}
+
 				case 2:
 					fmt.Println("To be edited soon")
 				case 3:
