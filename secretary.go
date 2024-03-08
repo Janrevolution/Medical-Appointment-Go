@@ -32,6 +32,7 @@ func secretary(empId string) {
 	var choice int
 	var err error
 	for {
+
 		fmt.Print(`
 Secretary Menu:
 1. Patients
@@ -46,6 +47,10 @@ Enter your choice: `)
 
 		switch choice {
 		case 1:
+			err = printPatients()
+			if err != nil {
+				fmt.Println("Error reading patient data:", err)
+			}
 			fmt.Print(`
 Patient Menu:
 1. Add Patients
@@ -175,7 +180,6 @@ Enter your choice: `)
 					for {
 						fmt.Print("Enter the Patient's ID: ")
 						fmt.Scanln(&patientId)
-						patientId, err := getIdTemp(patientId, "patient")
 						if patientId == "" {
 							continue reservationMenu
 						}
@@ -186,10 +190,14 @@ Enter your choice: `)
 						}
 					}
 
+					patientId, err := getIdTemp(patientId, "patient")
+					if err != nil {
+						fmt.Println("Error reservation ID:", err)
+					}
+
 					for {
 						fmt.Print("Enter Room Doctor's ID: ")
 						fmt.Scanln(&rdId)
-						rdId, err = getIdTemp(rdId, "time_doctorRD")
 						if rdId == "" {
 							continue reservationMenu
 						}
@@ -199,9 +207,14 @@ Enter your choice: `)
 							break
 						}
 					}
+					rdId, err = getIdTemp(rdId, "time_doctorRD")
+					if err != nil {
+						fmt.Println("Error reservation ID:", err)
+					}
+					fmt.Print(rdId)
 
 					for {
-						fmt.Print("Enter the date to be unavailable (YYYY-MM-DD) [enter if you want to go back to assign menu]: ")
+						fmt.Print("Enter the date to be appointed (YYYY-MM-DD) [enter if you want to go back to assign menu]: ")
 						date, _ = reader.ReadString('\n')
 						date = strings.TrimSpace(date) // Remove the newline character
 

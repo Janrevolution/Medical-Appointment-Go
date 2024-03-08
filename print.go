@@ -143,21 +143,21 @@ func printAccounts() error {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT e.emp_id, e.first_name, e.middle_name, e.last_name, a.username FROM tbl_accounts a JOIN tbl_employees e ON a.emp_id = e.emp_id;")
+	rows, err := db.Query("SELECT e.emp_id, e.first_name, e.middle_name, e.last_name, e.profession, a.username FROM tbl_accounts a JOIN tbl_employees e ON a.emp_id = e.emp_id;")
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var empId, firstName, middleName, lastName, username string
+		var empId, firstName, middleName, lastName, profession, username string
 
-		err := rows.Scan(&empId, &firstName, &middleName, &lastName, &username)
+		err := rows.Scan(&empId, &firstName, &middleName, &lastName, &profession, &username)
 		if err != nil {
 			return err
 		}
 		empId = strings.Split(empId, "-")[0]
-		fmt.Printf("Employee ID: %s | Doctor Name: %s %s %s | Username: %s\n", empId, firstName, middleName, lastName, username)
+		fmt.Printf("Employee ID: %s | Name: %s %s %s | Profession: %s | Username: %s\n", empId, firstName, middleName, lastName, profession, username)
 	}
 
 	if err := rows.Err(); err != nil {
@@ -263,7 +263,7 @@ func printDoctorsTemp() error {
 
 		drID = strings.Split(drID, "-")[0]
 
-		fmt.Printf("ID: %s | Doctor: %s, %s %s | Specialization: %s | Room Number: %s\n", drID, lastName, firstName, middleName, specialization, roomNumber)
+		fmt.Printf("Room Doctor ID: %s | Doctor: %s, %s %s | Specialization: %s | Room Number: %s\n", drID, lastName, firstName, middleName, specialization, roomNumber)
 	}
 
 	if err := rows.Err(); err != nil {

@@ -7,13 +7,13 @@ import (
 func doctor(empId string) {
 	var choice int
 	var err error
-
+	fmt.Println("\nPatients for today: ")
 	err = printPatientDay()
 	if err != nil {
 		fmt.Println("Error reading patient data:", err)
 	}
 	for {
-		fmt.Println("1. Attend to a patient")
+		fmt.Println("\n1. Attend to a patient")
 		fmt.Println("2. Edit a patient diagnosis")
 		fmt.Println("3. Go back to Main Menu")
 		fmt.Print("Enter your choice: ")
