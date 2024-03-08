@@ -33,10 +33,11 @@ func secretary(empId string) {
 	var err error
 	for {
 		fmt.Print(`
-Secretary Menu:
-1. Patients
-2. Reservation
-3. Go Back to Main Menu
+--------Secretary Menu--------
+| [1] Patients               |
+| [2] Reservation            |
+| [3] Go Back to Main Menu   |
+------------------------------
 Enter your choice: `)
 		_, err = fmt.Scanln(&choice)
 		if err != nil {
@@ -47,9 +48,10 @@ Enter your choice: `)
 		switch choice {
 		case 1:
 			fmt.Print(`
-Patient Menu:
-1. Add Patients
-2. Go Back to Secretary Menu
+-----------Patient Menu-----------
+| [1] Add Patients               |
+| [2] Go Back to Secretary Menu  |
+----------------------------------
 Enter your choice: `)
 			fmt.Scanln(&choice)
 			switch choice {
@@ -132,6 +134,9 @@ Enter your choice: `)
 				}
 				fmt.Println("Patient added successfully.")
 			case 2:
+				secretary(empId)
+			default:
+				fmt.Println("\nInvalid Input!")
 				secretary(empId)
 			}
 		case 2:

@@ -13,9 +13,11 @@ func doctor(empId string) {
 		fmt.Println("Error reading patient data:", err)
 	}
 	for {
-		fmt.Println("1. Attend to a patient")
-		fmt.Println("2. Edit a patient diagnosis")
-		fmt.Println("3. Go back to Main Menu")
+		fmt.Println("---------------------------------")
+		fmt.Println("| [1] Attend to a patient       |")
+		fmt.Println("| [2] Edit a patient diagnosis  |")
+		fmt.Println("| [3] Go back to Main Menu      |")
+		fmt.Println("---------------------------------")
 		fmt.Print("Enter your choice: ")
 		fmt.Scanln(&choice)
 
