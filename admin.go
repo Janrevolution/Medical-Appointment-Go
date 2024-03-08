@@ -7,11 +7,11 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
 	"github.com/MasterDimmy/go-cls"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 )
-
 
 func isRoomTypeValid(roomType string) bool {
 	match, _ := regexp.MatchString("^[a-zA-Z]+$", roomType)
@@ -51,11 +51,10 @@ Enter your choice: `)
 				fmt.Print(`
 ----------Rooms Menu----------
 | [1] Add room               |
-| [2] Edit room              |
-| [3] Delete room            |
-| [4] Go back to Admin Menu  |
+| [2] Delete room            |
+| [3] Go back to Admin Menu  |
 ------------------------------
-Enter your Choice: `) 
+Enter your Choice: `)
 				fmt.Scanln(&choice)
 
 				switch choice {
@@ -113,8 +112,6 @@ Enter your Choice: `)
 						fmt.Println("Room created successfully")
 					}
 				case 2:
-					fmt.Println("To be edited soon")
-				case 3:
 					var roomNumber string
 					fmt.Print("Enter the room number to be deleted: ")
 					fmt.Scanln(&roomNumber)
@@ -127,8 +124,7 @@ Enter your Choice: `)
 						cls.CLS()
 						fmt.Println("Room deleted successfully")
 					}
-
-				case 4:
+				case 3:
 					fmt.Println("Going back to Admin Menu...")
 					continue OuterLoop
 				default:
@@ -145,9 +141,8 @@ Enter your Choice: `)
 				fmt.Print(`
 ---------Employee Menu--------
 | [1] Add Employee           |
-| [2] Edit Employee          |
-| [3] Delete Employee        |
-| [4] Go back to Admin Menu  |
+| [2] Delete Employee        |
+| [3] Go back to Admin Menu  |
 ------------------------------
 Enter your Choice: `)
 				fmt.Scanln(&choice)
@@ -222,11 +217,7 @@ Enter your Choice: `)
 						cls.CLS()
 						fmt.Println("User created successfully")
 					}
-
 				case 2:
-					fmt.Println("To be edited soon")
-
-				case 3:
 					var hp_id string
 
 					fmt.Print("Enter Employee ID to be deleted: ")
@@ -241,8 +232,7 @@ Enter your Choice: `)
 						cls.CLS()
 						fmt.Println("Employee removed successfully")
 					}
-
-				case 4:
+				case 3:
 					fmt.Println("Going back to Admin Menu...")
 					continue OuterLoop
 				default:
@@ -250,7 +240,7 @@ Enter your Choice: `)
 				}
 			}
 		case 3:
-			assignMenu:
+		assignMenu:
 			for {
 				fmt.Println("\nAssigned Doctors: ")
 				err = printAssignedDoctor()
@@ -297,7 +287,7 @@ Enter your Choice: `)
 					roomNumber = scanner.Text()
 
 					var doctorId string
-					fmt.Print("Enter doctor ID: ")         
+					fmt.Print("Enter doctor ID: ")
 					scanner.Scan()
 					doctorId = scanner.Text()
 
@@ -323,7 +313,7 @@ Enter your Choice: `)
 					for {
 						fmt.Print("Enter the room number to be deleted: ")
 						fmt.Scanln(&roomNumber)
-						roomNumber = strings.TrimSpace(roomNumber)  // Remove the newline character
+						roomNumber = strings.TrimSpace(roomNumber) // Remove the newline character
 						if roomNumber == "" {
 							continue assignMenu
 						}
@@ -333,7 +323,7 @@ Enter your Choice: `)
 					for {
 						fmt.Print("Enter Doctors ID to be deleted: ")
 						fmt.Scanln(&drID)
-						drID = strings.TrimSpace(drID)  // Remove the newline character
+						drID = strings.TrimSpace(drID) // Remove the newline character
 						if drID == "" {
 							continue assignMenu
 						}
@@ -360,24 +350,24 @@ Enter your Choice: `)
 					if err != nil {
 						fmt.Println("Error Printing Time Slots!:", err)
 					}
-				
+
 					fmt.Println("\nAssigned Doctor Room List: ")
 					err = printDoctorsTemp()
 					if err != nil {
 						fmt.Println("Error Printing Assigned Doctors!:", err)
 					}
-				
+
 					fmt.Println("\nAssigned Doctor Room with Time List: ")
 					err = printAssignedDoctorTime()
 					if err != nil {
 						fmt.Println("Error Printing Assigned Doctors!:", err)
 					}
 					var timeId, doctorId string
-				
+
 					for {
 						fmt.Print("\nEnter the Doctor's Room ID  [enter if you want to go back to assign menu]: ")
 						fmt.Scanln(&doctorId)
-						doctorId = strings.TrimSpace(doctorId)  // Remove the newline character
+						doctorId = strings.TrimSpace(doctorId) // Remove the newline character
 						if doctorId == "" {
 							continue assignMenu
 						}
@@ -388,11 +378,11 @@ Enter your Choice: `)
 						}
 						break
 					}
-				
+
 					for {
 						fmt.Print("Enter the time ID  [enter if you want to go back to assign menu]: ")
 						fmt.Scanln(&timeId)
-						timeId = strings.TrimSpace(timeId)  // Remove the newline character
+						timeId = strings.TrimSpace(timeId) // Remove the newline character
 						if timeId == "" {
 							continue assignMenu
 						}
@@ -403,13 +393,13 @@ Enter your Choice: `)
 						}
 						break
 					}
-				
+
 					uuid := uuid.New().String()
 					query := "INSERT INTO tbl_time_doctor (rd_id, time_id, ad_id) VALUES (?, ?, ?)"
 					err = SQLManager(query, doctorId, timeId, uuid)
 					if err != nil {
 						fmt.Println("Error executing SQL query: ", err)
-					} else{
+					} else {
 						fmt.Println("Added time to doctor")
 					}
 
@@ -419,13 +409,13 @@ Enter your Choice: `)
 					if err != nil {
 						fmt.Println("Error Printing Assigned Doctors!:", err)
 					}
-					
+
 					var adId, date string
-					
+
 					for {
 						fmt.Print("Enter the Doctor's Time ID whose time to be unavailable [enter if you want to go back to assign menu]: ")
 						fmt.Scanln(&adId)
-						adId = strings.TrimSpace(adId)  // Remove the newline character
+						adId = strings.TrimSpace(adId) // Remove the newline character
 						if adId == "" {
 							continue assignMenu
 						}
@@ -436,13 +426,13 @@ Enter your Choice: `)
 						}
 						break
 					}
-					
+
 					reader := bufio.NewReader(os.Stdin)
 
 					for {
 						fmt.Print("Enter the date to be unavailable (YYYY-MM-DD) [enter if you want to go back to assign menu]: ")
 						date, _ = reader.ReadString('\n')
-						date = strings.TrimSpace(date)  // Remove the newline character
+						date = strings.TrimSpace(date) // Remove the newline character
 
 						if date == "" {
 							continue assignMenu
@@ -462,7 +452,7 @@ Enter your Choice: `)
 					} else {
 						fmt.Println("Successfully made the Time to be unavailable!")
 					}
-					
+
 				case 6:
 
 					fmt.Println("\nDoctor Unavailable List: ")
@@ -476,7 +466,7 @@ Enter your Choice: `)
 					for {
 						fmt.Print("Enter the Doctor's Time ID whose date and time is to be removed: ")
 						fmt.Scanln(&adId)
-						adId = strings.TrimSpace(adId)  // Remove the newline character
+						adId = strings.TrimSpace(adId) // Remove the newline character
 						if adId == "" {
 							continue assignMenu
 						}
@@ -492,7 +482,7 @@ Enter your Choice: `)
 					err = SQLManager(query, adId)
 					if err != nil {
 						fmt.Println("Error executing SQL query: ", err)
-					} else{
+					} else {
 						fmt.Println("Made the slot available again!")
 					}
 				case 7:
@@ -503,7 +493,7 @@ Enter your Choice: `)
 				}
 			}
 		case 4:
-			accountCreation:
+		accountCreation:
 			for {
 				fmt.Println("Accounts :")
 				err = printAccounts()
@@ -518,7 +508,7 @@ Enter your Choice: `)
 | [4] Go back to Admin Menu  |
 ------------------------------
 Enter your Choice: `)
-		
+
 				fmt.Scanln(&choice)
 
 				switch choice {
@@ -541,7 +531,7 @@ Enter your Choice: `)
 					scanner.Scan()
 					hp_id = scanner.Text()
 
-					if hp_id == ""{
+					if hp_id == "" {
 						continue accountCreation
 					}
 
@@ -550,7 +540,7 @@ Enter your Choice: `)
 					scanner.Scan()
 					username = scanner.Text()
 
-					if username == ""{
+					if username == "" {
 						continue accountCreation
 					}
 
@@ -574,12 +564,12 @@ Enter your Choice: `)
 					}
 
 				case 2:
-					fmt.Println("To be edited soon") 
+					fmt.Println("To be edited soon")
 				case 3:
 					var accountId string
 					fmt.Print("Enter the ID to be deleted: ")
 					fmt.Scanln(&accountId)
-					if accountId==""{
+					if accountId == "" {
 						continue accountCreation
 					}
 					err := deleteRecord(accountId, "account")
