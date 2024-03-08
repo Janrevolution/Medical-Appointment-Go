@@ -109,23 +109,24 @@ func printAssignedDoctor() error {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT CONCAT(e.last_name, ', ', e.first_name, ' ', e.middle_name) AS doctor_full_name, e.specialization, r.room_number FROM tbl_room_doctor rd JOIN tbl_employees e ON rd.doctor_id_fk = e.emp_id JOIN tbl_rooms r ON rd.room_id_fk = r.room_id;")
+	rows, err := db.Query(`SELECT rd.rd_id, CONCAT(e.last_name, ', ', e.first_name, ' ', e.middle_name) AS doctor_full_name, 
+			e.specialization, r.room_number FROM tbl_room_doctor rd 
+			JOIN tbl_employees e ON rd.doctor_id_fk = e.emp_id 
+			JOIN tbl_rooms r ON rd.room_id_fk = r.room_id;`)
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var drName string
-		var roomNumber string
-		var specialization string
+		var roomId, drName, roomNumber, specialization string
 
-		err := rows.Scan(&drName, &specialization, &roomNumber)
+		err := rows.Scan(&roomId, &drName, &specialization, &roomNumber)
 		if err != nil {
 			return err
 		}
-
-		fmt.Printf("Doctor Name: %s| Specialization: %s| Room Number: %s\n", drName, specialization, roomNumber)
+		roomId = strings.Split(roomId, "-")[0]
+		fmt.Printf("Doctor Room ID: %s | Doctor Name: %s| Specialization: %s| Room Number: %s\n", roomId, drName, specialization, roomNumber)
 	}
 
 	if err := rows.Err(); err != nil {
@@ -142,21 +143,21 @@ func printAccounts() error {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("SELECT e.hp_id, a.username FROM tbl_accounts a JOIN tbl_employees e ON a.emp_id = e.emp_id;")
+	rows, err := db.Query("SELECT e.emp_id, e.first_name, e.middle_name, e.last_name, a.username FROM tbl_accounts a JOIN tbl_employees e ON a.emp_id = e.emp_id;")
 	if err != nil {
 		return err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var hpid, username string
+		var empId, firstName, middleName, lastName, username string
 
-		err := rows.Scan(&hpid, &username)
+		err := rows.Scan(&empId, &firstName, &middleName, &lastName, &username)
 		if err != nil {
 			return err
 		}
-
-		fmt.Printf("ID: %s | Username: %s\n", hpid, username)
+		empId = strings.Split(empId, "-")[0]
+		fmt.Printf("Employee ID: %s | Doctor Name: %s %s %s | Username: %s\n", empId, firstName, middleName, lastName, username)
 	}
 
 	if err := rows.Err(); err != nil {

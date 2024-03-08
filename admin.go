@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/MasterDimmy/go-cls"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 )
@@ -36,7 +35,7 @@ OuterLoop:
 | [1] Rooms                 |
 | [2] Employee function     |
 | [3] Assign Doctor         |
-| [4] Create Account        |
+| [4] Account Setting       |
 | [5] Go back to Main Menu  |
 -----------------------------
 Enter your choice: `)
@@ -260,12 +259,11 @@ Enter your Choice: `)
 				fmt.Print(`
 --------------Assign Menu--------------
 | [1] Assign Doctor Room              |
-| [2] Edit Doctor Room                |
-| [3] Remove Doctor Room              |
-| [4] Assign Doctor Time              |
-| [5] Add Unavailable Doctor Time     |
-| [6] Remove Unavailable Doctor Time  |
-| [7] Go back to Admin Menu           |
+| [2] Remove Doctor Room              |
+| [3] Assign Doctor Time              |
+| [4] Add Unavailable Doctor Time     |
+| [5] Remove Unavailable Doctor Time  |
+| [6] Go back to Admin Menu           |
 ---------------------------------------
 Enter your Choice: `)
 				fmt.Scanln(&choice)
@@ -316,53 +314,39 @@ Enter your Choice: `)
 					} else {
 						fmt.Println("Assigned doctor to a room")
 					}
-
 				case 2:
-					fmt.Println("To be edited soon")
-				case 3:
 					fmt.Println("\nAssigned Doctors: ")
 					err = printAssignedDoctor()
 					if err != nil {
 						fmt.Println("Error deleting doctor & room data:", err)
 					}
 
-					var roomNumber, drID string
+					var doctorRoomId string
 
 					for {
-						fmt.Print("Enter the room number to be deleted: ")
-						fmt.Scanln(&roomNumber)
-						roomNumber = strings.TrimSpace(roomNumber) // Remove the newline character
-						if roomNumber == "" {
+						fmt.Print("Enter the Doctor Room ID to be deleted: ")
+						fmt.Scanln(&doctorRoomId)
+						doctorRoomId = strings.TrimSpace(doctorRoomId) // Remove the newline character
+						if doctorRoomId == "" {
 							continue assignMenu
+						}
+						doctorRoomId, err = getIdTemp(doctorRoomId, "room_doctor")
+						if err != nil {
+							fmt.Println("Error getting doctor ID:", err)
+							continue
 						}
 						break
 					}
 
-					for {
-						fmt.Print("Enter Doctors ID to be deleted: ")
-						fmt.Scanln(&drID)
-						drID = strings.TrimSpace(drID) // Remove the newline character
-						if drID == "" {
-							continue assignMenu
-						}
-						break
-					}
-
-					rd_id, err := getId(roomNumber, drID)
+					query := "DELETE FROM tbl_room_doctor WHERE rd_id = ?"
+					err = SQLManager(query, doctorRoomId)
 					if err != nil {
-						fmt.Println("Error getting ID:", err)
-						return
-					}
-
-					err = deleteRecord(rd_id, "assignment")
-					if err != nil {
-						cls.CLS()
-						fmt.Println("Error deleting assignment:", err)
+						fmt.Println("Error executing SQL query: ", err)
 					} else {
-						cls.CLS()
-						fmt.Println("Room deleted assignment")
+						fmt.Println("Deleted the doctor from the room!")
 					}
-				case 4:
+
+				case 3:
 					fmt.Println("\nTime Slots: ")
 					err = printTimeSlot()
 					if err != nil {
@@ -420,8 +404,7 @@ Enter your Choice: `)
 					} else {
 						fmt.Println("Added time to doctor")
 					}
-
-				case 5:
+				case 4:
 					fmt.Println("\nAssigned Doctor Room with Time List: ")
 					err = printAssignedDoctorTime()
 					if err != nil {
@@ -470,8 +453,7 @@ Enter your Choice: `)
 					} else {
 						fmt.Println("Successfully made the Time to be unavailable!")
 					}
-
-				case 6:
+				case 5:
 
 					fmt.Println("\nDoctor Unavailable List: ")
 					err = printUnavDoctors()
@@ -503,7 +485,7 @@ Enter your Choice: `)
 					} else {
 						fmt.Println("Made the slot available again!")
 					}
-				case 7:
+				case 6:
 					fmt.Println("Going back to Admin Menu...")
 					continue OuterLoop
 				default:
@@ -544,61 +526,97 @@ Enter your Choice: `)
 					}
 
 					// To read the whole line, use standard input scanner
-					var hp_id string
-					fmt.Print("\nEnter ID number [enter if you want to go back to assign menu]: ")
-					scanner.Scan()
-					hp_id = scanner.Text()
-
-					if hp_id == "" {
+					var empId, username, password string
+					fmt.Print("\nEnter Employee ID number [enter if you want to go back to assign menu]: ")
+					fmt.Scanln(&empId)
+					empId, err = getIdTemp(empId, "employee")
+					if err != nil {
+						fmt.Println("Error getting doctor ID:", err)
 						continue accountCreation
 					}
 
-					var username string
+					if empId == "" {
+						continue accountCreation
+					}
+
 					fmt.Print("Enter username [enter if you want to go back to assign menu]: ")
-					scanner.Scan()
-					username = scanner.Text()
+					fmt.Scanln(&username)
 
 					if username == "" {
 						continue accountCreation
 					}
 
-					var password string
 					fmt.Print("Enter password [enter if you want to go back to assign menu]: ")
-					scanner.Scan()
-					password = scanner.Text()
+					fmt.Scanln(&password)
 					if password == "" {
 						continue accountCreation
 					}
 
-					// fmt.Printf("You entered room type: %s and room number: %d\n", roomType, roomNumber)
-
-					err := addAccount(hp_id, username, password)
+					query := "INSERT INTO tbl_accounts (emp_id, username, password) VALUES (?, ?, ?)"
+					err = SQLManager(query, empId, username, password)
 					if err != nil {
-						cls.CLS()
-						fmt.Println("Error creation:", err)
+						fmt.Println("Error executing SQL query: ", err)
 					} else {
-						cls.CLS()
-						fmt.Println("Successfully created an account!")
+						fmt.Println("Created an account for the employee!")
+					}
+				case 2:
+					fmt.Println("Accounts :")
+					err = printAccounts()
+					if err != nil {
+						fmt.Println("Error reading room data:", err)
 					}
 
-				case 2:
-					fmt.Println("To be edited soon")
+					var empId, username, password string
+					fmt.Print("\nEnter Employee ID number you want to edit: ")
+					fmt.Scanln(&empId)
+					empId, err = getIdTemp(empId, "employee")
+					if err != nil {
+						fmt.Println("Error getting doctor ID:", err)
+						continue accountCreation
+					}
+
+					fmt.Print("Enter a new username: ")
+					fmt.Scanln(&username)
+					if username == "" {
+						continue accountCreation
+					}
+
+					fmt.Print("Enter a new password: ")
+					fmt.Scanln(&password)
+					if password == "" {
+						continue accountCreation
+					}
+
+					query := "UPDATE tbl_accounts SET username = ?, password = ? WHERE emp_id = ?"
+					err = SQLManager(query, username, password, empId)
+					if err != nil {
+						fmt.Println("Error executing SQL query: ", err)
+					}
+					fmt.Println("Updated account settings for the patient!")
 				case 3:
+					fmt.Println("Accounts :")
+					err = printAccounts()
+					if err != nil {
+						fmt.Println("Error reading room data:", err)
+					}
 					var accountId string
-					fmt.Print("Enter the ID to be deleted: ")
+					fmt.Print("Enter the account ID to be deleted: ")
 					fmt.Scanln(&accountId)
 					if accountId == "" {
 						continue accountCreation
 					}
-					err := deleteRecord(accountId, "account")
+					accountId, err = getIdTemp(accountId, "account")
 					if err != nil {
-						cls.CLS()
-						fmt.Println("Error deleting room:", err)
-					} else {
-						cls.CLS()
-						fmt.Println("Account deleted successfully")
+						fmt.Println("Error getting doctor ID:", err)
+						continue accountCreation
 					}
 
+					query := "DELETE FROM tbl_accounts WHERE emp_id = ?"
+					err = SQLManager(query, accountId)
+					if err != nil {
+						fmt.Println("Error executing SQL query: ", err)
+					}
+					fmt.Println("Deleted the account!")
 				case 4:
 					fmt.Println("Going back to Admin Menu...")
 					continue OuterLoop
