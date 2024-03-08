@@ -256,16 +256,16 @@ Enter your Choice: `)
 				if err != nil {
 					fmt.Println("Error deleting doctor & room data:", err)
 				}
-				fmt.Print("--------------Assign Menu--------------")
-				fmt.Print("| [1] Assign Doctor Room              |")
-				fmt.Print("| [2] Edit Doctor Room                |")
-				fmt.Print("| [3] Remove Doctor Room              |")
-				fmt.Print("| [4] Assign Doctor Time              |")
-				fmt.Print("| [5] Add Unavailable Doctor Time     |")
-				fmt.Print("| [6] Remove Unavailable Doctor Time  |")
-				fmt.Print("| [7] Go back to Admin Menu           |")
-				fmt.Print("---------------------------------------")
-				fmt.Print("Enter your choice")
+
+				fmt.Println("--------------Assign Menu--------------")
+				fmt.Println("| [1] Assign Doctor Room              |")
+				fmt.Println("| [2] Remove Doctor Room              |")
+				fmt.Println("| [3] Assign Doctor Time              |")
+				fmt.Println("| [4] Add Unavailable Doctor Time     |")
+				fmt.Println("| [5] Remove Unavailable Doctor Time  |")
+				fmt.Println("| [6] Go back to Admin Menu           |")
+				fmt.Println("---------------------------------------")
+				fmt.Print("Enter your choice: ")
 
 				fmt.Scanln(&choice)
 
@@ -319,7 +319,7 @@ Enter your Choice: `)
 					fmt.Println("\nAssigned Doctors: ")
 					err = printAssignedDoctor()
 					if err != nil {
-						fmt.Println("Error deleting doctor & room data:", err)
+						fmt.Println("Error printing doctor & room data:", err)
 					}
 
 					var doctorRoomId string
@@ -346,7 +346,6 @@ Enter your Choice: `)
 					} else {
 						fmt.Println("Deleted the doctor from the room!")
 					}
-
 				case 3:
 					fmt.Println("\nTime Slots: ")
 					err = printTimeSlot()
@@ -406,6 +405,12 @@ Enter your Choice: `)
 						fmt.Println("Added time to doctor")
 					}
 				case 4:
+					fmt.Println("\nAssigned Doctors: ")
+					err = printAssignedDoctor()
+					if err != nil {
+						fmt.Println("Error printing doctor & room data:", err)
+					}
+
 					fmt.Println("\nAssigned Doctor Room with Time List: ")
 					err = printAssignedDoctorTime()
 					if err != nil {
@@ -455,7 +460,6 @@ Enter your Choice: `)
 						fmt.Println("Successfully made the Time to be unavailable!")
 					}
 				case 5:
-
 					fmt.Println("\nDoctor Unavailable List: ")
 					err = printUnavDoctors()
 					if err != nil {

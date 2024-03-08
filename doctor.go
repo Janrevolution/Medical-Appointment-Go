@@ -1,13 +1,16 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 )
 
 func doctor(empId string) {
 	var choice int
 	var err error
-
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Println("\nPatients for today: ")
 	err = printPatientDay()
 	if err != nil {
 		fmt.Println("Error reading patient data:", err)
@@ -32,7 +35,8 @@ func doctor(empId string) {
 			}
 
 			fmt.Print("Enter Diagnosis: ")
-			fmt.Scanln(&diagnosis)
+			scanner.Scan()
+			diagnosis = scanner.Text()
 
 			query := "INSERT INTO tbl_patient_diagnosis (reserve_id, diagnosis, doctor_id) VALUES (?, ?, ?)"
 			err = SQLManager(query, reserveId, diagnosis, empId)
@@ -54,8 +58,9 @@ func doctor(empId string) {
 				fmt.Println("Error getting reservation ID:", err)
 			}
 
-			fmt.Print("Enter Reservation ID: ")
-			fmt.Scanln(&newDiagnosis)
+			fmt.Print("Enter Updated Diagnosis ID: ")
+			scanner.Scan()
+			newDiagnosis = scanner.Text()
 
 			query := "UPDATE tbl_patient_diagnosis SET diagnosis = ? WHERE reserve_id = ?"
 			err = SQLManager(query, newDiagnosis, reserveId)
@@ -64,6 +69,8 @@ func doctor(empId string) {
 				continue
 			}
 			fmt.Println("Diagnosed Patient successfully.")
+		case 3:
+			main()
 		}
 	}
 }
