@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 06, 2024 at 10:35 PM
+-- Generation Time: Mar 08, 2024 at 06:22 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -38,7 +38,8 @@ CREATE TABLE `tbl_accounts` (
 --
 
 INSERT INTO `tbl_accounts` (`emp_id`, `username`, `password`) VALUES
-('2e13f66a-6197-4e03-81fc-e3e12dba841f', 'asd', 'asd');
+('2e13f66a-6197-4e03-81fc-e3e12dba841f', 'asd', 'asd'),
+('7ce88b9f-d80f-4945-a018-e448620d3f76', 'qwe', 'qwe');
 
 -- --------------------------------------------------------
 
@@ -61,7 +62,9 @@ CREATE TABLE `tbl_appointment_details` (
 --
 
 INSERT INTO `tbl_appointment_details` (`reserve_id`, `patient_id_fk`, `rd_id`, `date`, `time`, `secretary_id`, `description`) VALUES
-('dc5063c6-7bc6-460c-a923-a5242f00c791', '62c17a1f-88a0-43e3-96ea-cbc5a1d899a1', '309369fd-3510-480e-9734-6c75429dfa1f', '2024-03-07', '88fa1e1c-db0d-11ee-9efc-902e16b789a2', '2e13f66a-6197-4e03-81fc-e3e12dba841f', 'Headache');
+('04491882-a7cb-4e2e-8c65-500cd8824854', '62c17a1f-88a0-43e3-96ea-cbc5a1d899a1', '309369fd-3510-480e-9734-6c75429dfa1f', '2024-03-08', '88fa1dc0-db0d-11ee-9efc-902e16b789a2', '2e13f66a-6197-4e03-81fc-e3e12dba841f', 'Headache'),
+('6c809c7a-4243-4824-8c48-e82fb26cffc8', '62c17a1f-88a0-43e3-96ea-cbc5a1d899a1', '309369fd-3510-480e-9734-6c75429dfa1f', '2024-03-10', '88fa1e44-db0d-11ee-9efc-902e16b789a2', '2e13f66a-6197-4e03-81fc-e3e12dba841f', 'Head'),
+('8a4faea3-cce8-4728-aa20-5e5f12c8305b', '670c3a68-c49f-4832-841c-ecce825889f4', '309369fd-3510-480e-9734-6c75429dfa1f', '2024-03-08', '88fa1e1c-db0d-11ee-9efc-902e16b789a2', '2e13f66a-6197-4e03-81fc-e3e12dba841f', 'Migraine');
 
 -- --------------------------------------------------------
 
@@ -128,6 +131,25 @@ CREATE TABLE `tbl_patients` (
 INSERT INTO `tbl_patients` (`patient_id`, `last_name`, `first_name`, `middle_name`, `age`, `gender`) VALUES
 ('62c17a1f-88a0-43e3-96ea-cbc5a1d899a1', 'PatLast', 'PatFirst', 'PatMiddle', 18, 'male'),
 ('670c3a68-c49f-4832-841c-ecce825889f4', 'temp', 'tempbro', 'tempyeah', 20, 'male');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_patient_diagnosis`
+--
+
+CREATE TABLE `tbl_patient_diagnosis` (
+  `reserve_id` varchar(64) NOT NULL,
+  `diagnosis` varchar(512) DEFAULT NULL,
+  `doctor_id` varchar(64) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tbl_patient_diagnosis`
+--
+
+INSERT INTO `tbl_patient_diagnosis` (`reserve_id`, `diagnosis`, `doctor_id`) VALUES
+('04491882-a7cb-4e2e-8c65-500cd8824854', 'HeadAche', '7ce88b9f-d80f-4945-a018-e448620d3f76');
 
 -- --------------------------------------------------------
 
@@ -230,6 +252,7 @@ CREATE TABLE `tbl_time_doctor` (
 INSERT INTO `tbl_time_doctor` (`rd_id`, `time_id`, `ad_id`) VALUES
 ('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1e71-db0d-11ee-9efc-902e16b789a2', '25c458c7-2d65-4c00-b7dc-d435d73f0d7f'),
 ('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1e1c-db0d-11ee-9efc-902e16b789a2', '2e74dd53-c198-468f-8c55-e7d087989640'),
+('46435dcb-8fef-488a-89d5-0aa011a15dec', '88fa1cef-db0d-11ee-9efc-902e16b789a2', '74d87ec0-6ab2-491e-bd9d-e17d1d703f75'),
 ('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1e44-db0d-11ee-9efc-902e16b789a2', 'bd47d931-feb6-4017-8b38-0ddfaec7d4aa'),
 ('309369fd-3510-480e-9734-6c75429dfa1f', '88fa1dc0-db0d-11ee-9efc-902e16b789a2', 'd8adaeb2-d3a4-46f0-b689-569d320daa51');
 
@@ -269,6 +292,13 @@ ALTER TABLE `tbl_employees`
 --
 ALTER TABLE `tbl_patients`
   ADD PRIMARY KEY (`patient_id`);
+
+--
+-- Indexes for table `tbl_patient_diagnosis`
+--
+ALTER TABLE `tbl_patient_diagnosis`
+  ADD PRIMARY KEY (`reserve_id`),
+  ADD KEY `doctor_id` (`doctor_id`);
 
 --
 -- Indexes for table `tbl_rooms`
@@ -321,6 +351,13 @@ ALTER TABLE `tbl_appointment_details`
 --
 ALTER TABLE `tbl_avail_doctor`
   ADD CONSTRAINT `tbl_avail_doctor_ibfk_1` FOREIGN KEY (`ad_id`) REFERENCES `tbl_time_doctor` (`ad_id`);
+
+--
+-- Constraints for table `tbl_patient_diagnosis`
+--
+ALTER TABLE `tbl_patient_diagnosis`
+  ADD CONSTRAINT `tbl_patient_diagnosis_ibfk_1` FOREIGN KEY (`reserve_id`) REFERENCES `tbl_appointment_details` (`reserve_id`),
+  ADD CONSTRAINT `tbl_patient_diagnosis_ibfk_2` FOREIGN KEY (`doctor_id`) REFERENCES `tbl_accounts` (`emp_id`);
 
 --
 -- Constraints for table `tbl_room_doctor`

@@ -9,7 +9,7 @@
 7. Done
 
 # [TEMP] To-do:
-1. Add the logic in printing to have where date in appointment_details
+<!-- 1. Add the logic in printing to have where date in appointment_details -->
 2. Finish doctor view
 3. Finish edit function in functions that need it 
 
@@ -93,6 +93,14 @@ Create table tbl_avail_doctor(
     date date,
     primary key(ad_id, date),
     foreign key (ad_id) references tbl_time_doctor(ad_id)
+);
+
+Create table tbl_patient_diagnosis(
+    reserve_id varchar(64) primary key,
+    diagnosis varchar(512),
+    doctor_id varchar(64),
+    foreign key(reserve_id) references tbl_appointment_details (reserve_id),
+    foreign key(doctor_id) references tbl_accounts(emp_id)
 );
 
 # Query for tbl_time

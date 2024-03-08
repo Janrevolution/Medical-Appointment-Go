@@ -34,9 +34,6 @@ func SQLManager(query string, args ...interface{}) error {
 	return nil
 }
 
-func doctor() {
-	fmt.Println("Welcome Doc!")
-}
 func login() {
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
@@ -64,7 +61,7 @@ func login() {
 				fmt.Println("Error getting profession:", profErr)
 			} else {
 				if profession == "Doctor" {
-					doctor()
+					doctor(empID)
 				} else {
 					secretary(empID)
 				}
@@ -377,6 +374,9 @@ func getIdTemp(cutId, table string) (string, error) {
 		err = db.QueryRow(query, cutId).Scan(&id)
 	} else if table == "newTime" {
 		query := "SELECT time_id FROM tbl_time_doctor WHERE LEFT(time_id, 8) = ?"
+		err = db.QueryRow(query, cutId).Scan(&id)
+	} else if table == "reserve" {
+		query := "SELECT reserve_id FROM tbl_appointment_details WHERE LEFT(reserve_id, 8) = ?"
 		err = db.QueryRow(query, cutId).Scan(&id)
 	}
 
