@@ -487,3 +487,45 @@ func printReservedPatients() error {
 
 	return nil
 }
+
+// Display the patient booked for the day and don't print if it already has a diagnosis
+func printPatientDay() error {
+	db, err := connectDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	rows, err := db.Query(`
+	SELECT tad.reserve_id,
+    tp.last_name,tp.first_name,tp.middle_name,
+    tt.start_time, tt.end_time
+	FROM tbl_appointment_details AS tad
+	JOIN tbl_patients AS tp ON tad.patient_id_fk = tp.patient_id
+	JOIN tbl_time AS tt ON tad.time = tt.time_id
+	WHERE tad.date = CURDATE()	
+	AND tad.reserve_id NOT IN (SELECT reserve_id FROM tbl_patient_diagnosis);
+    `)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var reserveId, lastName, firstName, middleName,
+			startTime, endTime string
+
+		if err := rows.Scan(&reserveId, &lastName, &firstName, &middleName, &startTime, &endTime); err != nil {
+			return err
+		}
+		reserveId = strings.Split(reserveId, "-")[0]
+
+		fmt.Printf("Reserve ID: %s | Name: %s, %s %s | Appointment Time: %s - %s\n", reserveId, lastName, firstName, middleName, startTime, endTime)
+	}
+
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
