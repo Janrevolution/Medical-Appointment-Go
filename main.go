@@ -73,10 +73,11 @@ func main() {
 	var username, password string
 	for {
 		fmt.Print(`
-Main Menu:
-1. Log-in
-2. Admin
-3. Exit
+----Main Menu---
+| [1] Log-in   |
+| [2] Admin    |
+| [3] Exit     |
+----------------
 Enter your choice: `)
 		fmt.Scanln(&choice)
 
