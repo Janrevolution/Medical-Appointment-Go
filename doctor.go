@@ -39,6 +39,29 @@ func doctor(empId string) {
 				continue
 			}
 			fmt.Println("Diagnosed Patient successfully.")
+		case 2:
+			err = printPatientDiagnosis(empId)
+			if err != nil {
+				fmt.Println("Error reading patient diagnosis data:", err)
+			}
+			var reserveId, newDiagnosis string
+			fmt.Print("Enter Reservation ID: ")
+			fmt.Scanln(&reserveId)
+			reserveId, err := getIdTemp(reserveId, "reserve")
+			if err != nil {
+				fmt.Println("Error getting reservation ID:", err)
+			}
+
+			fmt.Print("Enter Reservation ID: ")
+			fmt.Scanln(&newDiagnosis)
+
+			query := "UPDATE tbl_patient_diagnosis SET diagnosis = ? WHERE reserve_id = ?"
+			err = SQLManager(query, newDiagnosis, reserveId)
+			if err != nil {
+				fmt.Println("Error executing SQL query: ", err)
+				continue
+			}
+			fmt.Println("Diagnosed Patient successfully.")
 		}
 	}
 }

@@ -529,3 +529,38 @@ func printPatientDay() error {
 
 	return nil
 }
+
+func printPatientDiagnosis(doctorId string) error {
+	db, err := connectDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	rows, err := db.Query(`
+        SELECT pd.reserve_id, tp.last_name, tp.first_name, tp.middle_name, pd.diagnosis
+        FROM tbl_patient_diagnosis AS pd
+        JOIN tbl_appointment_details AS tad ON pd.reserve_id = tad.reserve_id
+        JOIN tbl_patients AS tp ON tad.patient_id_fk = tp.patient_id
+        WHERE pd.doctor_id = ?;
+    `, doctorId)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var reserveID, lastName, firstName, middleName, diagnosis string
+		if err := rows.Scan(&reserveID, &lastName, &firstName, &middleName, &diagnosis); err != nil {
+			return err
+		}
+		reserveID = strings.Split(reserveID, "-")[0]
+		fmt.Printf("Reserve ID: %s | Patient Name: %s %s %s | Diagnosis: %s\n", reserveID, firstName, middleName, lastName, diagnosis)
+	}
+
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
