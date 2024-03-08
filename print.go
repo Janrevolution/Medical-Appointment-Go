@@ -190,7 +190,7 @@ func printPatients() error {
 
 		patid = strings.Split(patid, "-")[0]
 
-		fmt.Printf("Patient ID: %s | Employee: %s, %s %s | Age: %d | Gender: %s\n", patid, lastName, firstName, middleName, age, gender)
+		fmt.Printf("Patient ID: %s | Patient: %s, %s %s | Age: %d | Gender: %s\n", patid, lastName, firstName, middleName, age, gender)
 	}
 
 	if err := rows.Err(); err != nil {

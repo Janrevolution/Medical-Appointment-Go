@@ -147,12 +147,12 @@ Enter your choice: `)
 			if err != nil {
 				fmt.Println("Error reading patientsdata:", err)
 			}
-			fmt.Print("---------Reservation Menu---------")
-			fmt.Print("| [1] Add Reservation            |")
-			fmt.Print("| [2] Edit Reservation           |")
-			fmt.Print("| [3] Delete Reservation         |")
-			fmt.Print("| [4] Go back to Secretary Menu  |")
-			fmt.Print("----------------------------------")
+			fmt.Println("---------Reservation Menu---------")
+			fmt.Println("| [1] Add Reservation            |")
+			fmt.Println("| [2] Edit Reservation           |")
+			fmt.Println("| [3] Delete Reservation         |")
+			fmt.Println("| [4] Go back to Secretary Menu  |")
+			fmt.Println("----------------------------------")
 			fmt.Print(`Enter your choice: `)
 			fmt.Scanln(&choice)
 
@@ -304,8 +304,6 @@ Enter your choice: `)
 				secretary(empId)
 			}
 			}
-			
-
 		case 3:
 			main()
 		}
