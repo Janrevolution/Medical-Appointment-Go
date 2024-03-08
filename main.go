@@ -6,10 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/google/uuid"
 )
 
 // Insert, Update, Delete
@@ -112,126 +110,6 @@ func connectDB() (*sql.DB, error) {
 	return db, nil
 }
 
-func addRoom(roomType string, roomNumber int) error {
-	db, err := connectDB()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	uuid := uuid.New().String()
-
-	_, err = db.Exec("INSERT INTO tbl_rooms (room_id, room_type, room_number) VALUES (?, ?, ?)", uuid, roomType, roomNumber)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func addEmployee(lastName string, firstName string, middleName string, profession string, specialization string) error {
-	db, err := connectDB()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	hpid := generateMiliSec()
-	uuid := uuid.New().String()
-
-	_, err = db.Exec("INSERT INTO tbl_employees (emp_id, hp_id, last_name, first_name, middle_name, profession, specialization) VALUES (?, ?, ?, ?, ?, ?, ?)", uuid, hpid, lastName, firstName, middleName, profession, specialization)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func assignDoctor(roomNumber string, doctorID string) error {
-	db, err := connectDB()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	// Getting of ID's before insertion
-	roomID, err := getId(roomNumber, "")
-	if err != nil {
-		return err
-	}
-
-	doctorID, err = getId("", doctorID)
-	if err != nil {
-		return err
-	}
-
-	rdID := uuid.New().String()
-
-	_, err = db.Exec("INSERT INTO tbl_room_doctor (rd_id, doctor_id_fk, room_id_fk) VALUES (?, ?, ?)", rdID, doctorID, roomID)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func addAccount(hp_id string, username string, password string) error {
-	db, err := connectDB()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	emp_id, err := getId("", hp_id)
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec("INSERT INTO tbl_accounts (emp_id, username, password) VALUES (?, ?, ?)", emp_id, username, password)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func deleteRecord(identifier string, table string) error {
-	db, err := connectDB()
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	var query string
-
-	switch table {
-	case "room":
-		query = "DELETE FROM tbl_rooms WHERE room_number=?"
-	case "employee":
-		query = "DELETE FROM tbl_employees WHERE hp_id=?"
-	case "account":
-		query = "DELETE FROM tbl_accounts WHERE emp_id=?"
-	case "assignment":
-		query = "DELETE FROM tbl_room_doctor WHERE rd_id=?"
-	}
-
-	result, err := db.Exec(query, identifier)
-	if err != nil {
-		return err
-	}
-
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if rowsAffected == 0 {
-		return errors.New(identifier + " doesn't exist")
-	}
-
-	return nil
-}
-
 func loginUtil(username, password string) (error, string) {
 	db, err := connectDB()
 	if err != nil {
@@ -274,71 +152,6 @@ func GetProfession(empId string) (string, error) {
 	return profession, nil
 }
 
-func generateMiliSec() string {
-	// Step 1: Declare Variables
-	var id string
-
-	// Step 3: Generate Timestamp
-	currentTime := time.Now().UnixNano() / int64(time.Millisecond)
-
-	// Step 4: Format Timestamp
-	formattedTime := fmt.Sprintf("%06d", currentTime) // Padding with zeroes to ensure consistent length
-
-	// Step 5: Concatenate with Prefix
-	id = "HPID-" + formattedTime
-
-	return id
-}
-
-func getId(roomNumber string, doctorID string) (string, error) {
-	db, err := connectDB()
-	if err != nil {
-		return "", err
-	}
-	defer db.Close()
-
-	var id string
-	var query string
-	if doctorID != "" && roomNumber != "" {
-		// First, retrieve the emp_id from tbl_employees
-		var empID string
-		query = "SELECT emp_id FROM tbl_employees WHERE hp_id = ?"
-		err = db.QueryRow(query, doctorID).Scan(&empID)
-		if err != nil {
-			return "", err
-		}
-
-		// Then, retrieve the room_id from tbl_rooms
-		var roomID string
-		query = "SELECT room_id FROM tbl_rooms WHERE room_number = ?"
-		err = db.QueryRow(query, roomNumber).Scan(&roomID)
-		if err != nil {
-			return "", err
-		}
-
-		// Finally, retrieve the rd_id from tbl_room_doctor using both emp_id and room_id
-		query = "SELECT rd_id FROM tbl_room_doctor WHERE doctor_id_fk = ? AND room_id_fk = ?"
-		err = db.QueryRow(query, empID, roomID).Scan(&id)
-		if err != nil {
-			return "", err
-		}
-	} else if doctorID != "" {
-		query = "SELECT emp_id FROM tbl_employees WHERE hp_id = ?"
-		err = db.QueryRow(query, doctorID).Scan(&id)
-	} else if roomNumber != "" {
-		query = "SELECT room_id FROM tbl_rooms WHERE room_number = ?"
-		err = db.QueryRow(query, roomNumber).Scan(&id)
-	} else {
-		return "", errors.New("invalid arguments")
-	}
-
-	if err != nil {
-		return "", err
-	}
-
-	return id, nil
-}
-
 func getIdTemp(cutId, table string) (string, error) {
 	db, err := connectDB()
 	if err != nil {
@@ -377,6 +190,15 @@ func getIdTemp(cutId, table string) (string, error) {
 		err = db.QueryRow(query, cutId).Scan(&id)
 	} else if table == "reserve" {
 		query := "SELECT reserve_id FROM tbl_appointment_details WHERE LEFT(reserve_id, 8) = ?"
+		err = db.QueryRow(query, cutId).Scan(&id)
+	} else if table == "employee" {
+		query := "SELECT emp_id FROM tbl_employees WHERE LEFT(emp_id, 8) = ?"
+		err = db.QueryRow(query, cutId).Scan(&id)
+	} else if table == "room" {
+		query := "SELECT room_id FROM tbl_rooms WHERE LEFT(room_id, 8) = ?"
+		err = db.QueryRow(query, cutId).Scan(&id)
+	} else if table == "account" {
+		query := "SELECT emp_id FROM tbl_accounts WHERE LEFT(emp_id, 8) = ?"
 		err = db.QueryRow(query, cutId).Scan(&id)
 	}
 
