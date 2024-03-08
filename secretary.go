@@ -252,7 +252,6 @@ Enter your choice: `)
 			case 4:
 				secretary(empId)
 			}
-
 		case 3:
 			main()
 		}
