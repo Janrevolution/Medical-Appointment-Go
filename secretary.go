@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"unicode"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
@@ -26,6 +27,7 @@ func isAlphaOrSpace(s string) bool {
 }
 
 func secretary(empId string) {
+	
 	scanner := bufio.NewScanner(os.Stdin)
 	var choice int
 	var err error
@@ -133,7 +135,9 @@ Enter your choice: `)
 				secretary(empId)
 			}
 		case 2:
-			fmt.Println("Free slots for the day are: ")
+			reservationMenu:
+			for{
+				fmt.Println("Free slots for the day are: ")
 			err = freeTime()
 			if err != nil {
 				fmt.Println("Error reading doctor free time data:", err)
@@ -143,14 +147,18 @@ Enter your choice: `)
 			if err != nil {
 				fmt.Println("Error reading patientsdata:", err)
 			}
-			fmt.Println("1. Add Reservation")
-			fmt.Println("2. Edit Reservation")
-			fmt.Println("3. Delete Reservation")
-			fmt.Println("4. Go back to Secretary Menu")
-			fmt.Print("Enter your choice: ")
+			fmt.Print("---------Reservation Menu---------")
+			fmt.Print("| [1] Add Reservation            |")
+			fmt.Print("| [2] Edit Reservation           |")
+			fmt.Print("| [3] Delete Reservation         |")
+			fmt.Print("| [4] Go back to Secretary Menu  |")
+			fmt.Print("----------------------------------")
+			fmt.Print(`Enter your choice: `)
 			fmt.Scanln(&choice)
+
 			switch choice {
 			case 1:
+				reader := bufio.NewReader(os.Stdin)
 				err = freeTime()
 				if err != nil {
 					fmt.Println("Error reading doctor free time data:", err)
@@ -163,32 +171,74 @@ Enter your choice: `)
 
 				var patientId, rdId, timeId, date, description string
 
-				fmt.Print("Enter the Patient's ID: ")
-				fmt.Scanln(&patientId)
-				patientId, err := getIdTemp(patientId, "patient")
-				if err != nil {
+				for{
+					fmt.Print("Enter the Patient's ID: ")
+					fmt.Scanln(&patientId)
+					patientId, err := getIdTemp(patientId, "patient")
+					if patientId == ""{
+						continue reservationMenu
+					}
+					if err != nil {
 					fmt.Println("Error getting patient ID:", err)
+					}else{
+						break
+					}
 				}
 
-				fmt.Print("Enter Room Doctor's ID: ")
-				fmt.Scanln(&rdId)
-				rdId, err = getIdTemp(rdId, "time_doctorRD")
-				if err != nil {
-					fmt.Println("Error getting time ID:", err)
+				for{
+					fmt.Print("Enter Room Doctor's ID: ")
+					fmt.Scanln(&rdId)
+					rdId, err = getIdTemp(rdId, "time_doctorRD")
+					if rdId==""{
+						continue reservationMenu
+					}
+					if err != nil {
+						fmt.Println("Error getting time ID:", err)
+					}else{
+						break
+					}
+				}
+				
+				for {
+					fmt.Print("Enter the date to be unavailable (YYYY-MM-DD) [enter if you want to go back to assign menu]: ")
+					date, _ = reader.ReadString('\n')
+					date = strings.TrimSpace(date)  // Remove the newline character
+
+					if date == "" {
+						continue reservationMenu
+					}
+					// Check if date is in the correct format
+					_, err := time.Parse("2006-01-02", date)
+					if err != nil {
+						fmt.Println("Invalid date format. Please enter a date in the format YYYY-MM-DD.")
+						continue
+					}
+					break
 				}
 
-				fmt.Print("Enter Date for the patient(YYYY-MM-DD): ")
-				fmt.Scanln(&date)
-
-				fmt.Print("Enter Time ID: ")
-				fmt.Scanln(&timeId)
-				timeId, err = getIdTemp(timeId, "time_doctorT")
-				if err != nil {
-					fmt.Println("Error getting time ID:", err)
+				for{
+					fmt.Print("Enter Time ID: ")
+					fmt.Scanln(&timeId)
+					timeId, err = getIdTemp(timeId, "time_doctorT")
+					if timeId == ""{
+						continue reservationMenu
+					}
+					if err != nil {
+						fmt.Println("Error getting time ID:", err)
+					}else{
+						break
+					}
 				}
 
-				fmt.Print("Enter brief symptoms: ")
-				fmt.Scanln(&description)
+				for{
+					fmt.Print("Enter brief symptoms: ")
+					fmt.Scanln(&description)
+					if description==""{
+						continue reservationMenu
+					}else{
+						break
+					}
+				}
 
 				uuid := uuid.New().String()
 
@@ -196,8 +246,9 @@ Enter your choice: `)
 				err = SQLManager(query, uuid, patientId, rdId, date, timeId, empId, description)
 				if err != nil {
 					fmt.Println("Error executing SQL query: ", err)
+				} else{
+					fmt.Println("Added time to doctor")
 				}
-				fmt.Println("Added time to doctor")
 			case 2:
 				err = printReservedPatients()
 				if err != nil {
@@ -252,6 +303,8 @@ Enter your choice: `)
 			case 4:
 				secretary(empId)
 			}
+			}
+			
 
 		case 3:
 			main()
