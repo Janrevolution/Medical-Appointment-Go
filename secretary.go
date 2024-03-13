@@ -234,12 +234,24 @@ Enter your choice: `)
 							continue
 						}
 
-						currentDate := time.Now().Truncate(24 * time.Hour)
-						if parsedDate.Equal(currentDate) || parsedDate.After(currentDate) {
-							break
+						currentDateStr := time.Now().Format("2006-01-02")
+						currentDate, err := time.Parse("2006-01-02", currentDateStr)
+						if err != nil {
+							fmt.Println("Error parsing current date:", err)
+							return
 						}
 
-						fmt.Println("Entered date is in the past. Please enter a future date.")
+						if parsedDate.Before(currentDate) {
+							fmt.Println("Entered date is in the past. Please enter a future date.")
+							continue
+						}
+
+						if isDuplicate := duplicatePatient(patientId, currentDate); isDuplicate {
+							fmt.Println("There already exists a record!")
+							continue
+						}
+
+						break
 					}
 
 					for {

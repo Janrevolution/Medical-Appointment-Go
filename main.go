@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -223,4 +224,23 @@ func checkRoomExists(roomNumber int) (bool, error) {
 	}
 
 	return exists, nil
+}
+
+func duplicatePatient(patientID string, currentDate time.Time) bool {
+	db, err := connectDB()
+	if err != nil {
+		fmt.Println("Error connecting to database:", err)
+		return false
+	}
+	defer db.Close()
+
+	var count int
+	err = db.QueryRow("SELECT COUNT(*) FROM tbl_appointment_details WHERE patient_id_fk = ? AND date = ?", patientID, currentDate).Scan(&count)
+	if err != nil {
+		// Handle error
+		fmt.Println("Error querying database:", err)
+		return false
+	}
+
+	return count > 0
 }
