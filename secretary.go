@@ -12,7 +12,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// NOT IMPERATIVE
 func isAlphaOrSpace(s string) bool {
 	trimmed := strings.TrimSpace(s)
 	if len(trimmed) == 0 {
@@ -197,7 +196,8 @@ Enter your choice: `)
 
 					patientId, err := getIdTemp(patientId, "patient")
 					if err != nil {
-						fmt.Println("Error reservation ID:", err)
+						fmt.Println("Error getting patient ID:", err)
+						continue reservationMenu
 					}
 
 					for {
@@ -212,11 +212,12 @@ Enter your choice: `)
 							break
 						}
 					}
+
 					rdId, err = getIdTemp(rdId, "time_doctorRD")
 					if err != nil {
-						fmt.Println("Error reservation ID:", err)
+						fmt.Println("Error Time Doctor ID:", err)
+						continue reservationMenu
 					}
-					fmt.Print(rdId)
 
 					for {
 						fmt.Print("Enter the date to be appointed (YYYY-MM-DD) [enter if you want to go back to assign menu]: ")
@@ -227,12 +228,18 @@ Enter your choice: `)
 							continue reservationMenu
 						}
 						// Check if date is in the correct format
-						_, err := time.Parse("2006-01-02", date)
+						parsedDate, err := time.Parse("2006-01-02", date)
 						if err != nil {
 							fmt.Println("Invalid date format. Please enter a date in the format YYYY-MM-DD.")
 							continue
 						}
-						break
+
+						currentDate := time.Now().Truncate(24 * time.Hour)
+						if parsedDate.Equal(currentDate) || parsedDate.After(currentDate) {
+							break
+						}
+
+						fmt.Println("Entered date is in the past. Please enter a future date.")
 					}
 
 					for {
