@@ -190,24 +190,50 @@ Enter your Choice: `)
 						fmt.Print("Enter Profession: ")
 						scanner.Scan()
 						profession = scanner.Text()
-						if !isAlphaOrSpace(firstName) {
-							fmt.Println("Invalid input!")
+						professionLower := strings.ToLower(profession)
+						if professionLower != "doctor" && professionLower != "secretary" {
+							fmt.Println("Invalid input! Profession should be either 'Doctor' or 'Secretary'.")
 						} else {
+							if professionLower == "doctor" {
+								profession = "Doctor"
+							} else if professionLower == "secretary" {
+								profession = "Secretary"
+							}
 							break
 						}
-					}
+					}									
+
+					specializations := []string{"Cardiology", "Dermatology", "Endocrinology", "Gastroenterology", "Hematology", "Immunology", "Neurology", "Oncology", "Radiology", "Orthopedics", "Pediatrics", "Psychiatry", "Urology"}
 
 					for {
-						fmt.Print("Enter Specialization(N/A for non-doctors): ")
-						scanner.Scan()
-						specialization = scanner.Text()
-						if !isAlphaOrSpace(firstName) {
-							fmt.Println("Invalid input!")
+						if profession == "Doctor" {
+							fmt.Println("List of Specializations:")
+							for _, s := range specializations {
+								fmt.Println(s)
+							}
+							fmt.Print("Enter Specialization: ")
+							scanner.Scan()
+							specialization = scanner.Text()
+							validSpecialization := false
+							for _, s := range specializations {
+								if strings.EqualFold(s, specialization) {
+									validSpecialization = true
+									break
+								}
+							}
+							if !validSpecialization {
+								fmt.Println("Invalid input! Please enter a valid specialization.")
+							} else {
+								specialization = strings.Title(strings.ToLower(specialization)) // Convert to title case for storage
+								break
+							}
 						} else {
+							specialization = "N/A"
 							break
 						}
 					}
 
+					
 					uuid := uuid.New().String()
 
 					query := "INSERT INTO tbl_employees (emp_id, last_name, first_name, middle_name, profession, specialization) VALUES (?,?,?,?,?,?)"
@@ -216,7 +242,7 @@ Enter your Choice: `)
 						fmt.Println("Error executing SQL query: ", err)
 						continue
 					}
-					fmt.Println("Patient added successfully.")
+					fmt.Println("Employee added successfully.")
 
 				case 2:
 					err = printEmployees()
