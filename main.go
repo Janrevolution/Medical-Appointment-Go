@@ -78,7 +78,7 @@ func main() {
 | [1] Log-in   |
 | [2] Admin    |
 | [3] Exit     |
-----------------
+---------------- 
 Enter your choice: `)
 		fmt.Scanln(&choice)
 
