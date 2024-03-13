@@ -133,6 +133,7 @@ Enter your Choice: `)
 			}
 
 		case 2:
+			employeeMenu:
 			for {
 				err = printEmployees()
 				if err != nil {
@@ -154,9 +155,12 @@ Enter your Choice: `)
 					var lastName, firstName, middleName, profession, specialization string
 
 					for {
-						fmt.Print("Enter Last Name: ")
+						fmt.Print("Enter Last Name (or press Enter to go back): ")
 						scanner.Scan()
 						lastName = scanner.Text()
+						if lastName == ""{
+							continue employeeMenu
+						}
 						if !isAlphaOrSpace(lastName) {
 							fmt.Println("Invalid input!")
 						} else {
@@ -165,9 +169,12 @@ Enter your Choice: `)
 					}
 
 					for {
-						fmt.Print("Enter First Name: ")
+						fmt.Print("Enter First Name (or press Enter to go back): ")
 						scanner.Scan()
 						firstName = scanner.Text()
+						if firstName == ""{
+							continue employeeMenu
+						}
 						if !isAlphaOrSpace(firstName) {
 							fmt.Println("Invalid input!")
 						} else {
@@ -176,9 +183,12 @@ Enter your Choice: `)
 					}
 
 					for {
-						fmt.Print("Enter Middle Name: ")
+						fmt.Print("Enter Middle Name (or press Enter to go back): ")
 						scanner.Scan()
 						middleName = scanner.Text()
+						if middleName == ""{
+							continue employeeMenu
+						}
 						if !isAlphaOrSpace(middleName) {
 							fmt.Println("Invalid input!")
 						} else {
@@ -187,9 +197,12 @@ Enter your Choice: `)
 					}
 
 					for {
-						fmt.Print("Enter Profession: ")
+						fmt.Print("Enter Profession (or press Enter to go back): ")
 						scanner.Scan()
 						profession = scanner.Text()
+						if profession ==""{
+							continue employeeMenu
+						}
 						professionLower := strings.ToLower(profession)
 						if professionLower != "doctor" && professionLower != "secretary" {
 							fmt.Println("Invalid input! Profession should be either 'Doctor' or 'Secretary'.")
@@ -245,28 +258,38 @@ Enter your Choice: `)
 					fmt.Println("Employee added successfully.")
 
 				case 2:
-					err = printEmployees()
-					if err != nil {
-						fmt.Println("Error reading employee data:", err)
+					for {
+						err = printEmployees()
+						if err != nil {
+							fmt.Println("Error reading employee data:", err)
+							continue
+						}
+					
+						var empId string
+					
+						fmt.Print("\nEnter Employee ID to be deleted (or press Enter to go back): ")
+						fmt.Scanln(&empId)
+					
+						if empId == "" {
+							continue employeeMenu
+						}
+					
+						empId, err = getIdTemp(empId, "employee")
+						if err != nil {
+							fmt.Println("Error reservation ID:", err)
+							continue
+						}
+					
+						query := "DELETE FROM tbl_employees WHERE emp_id=?"
+						err = SQLManager(query, empId)
+						if err != nil {
+							fmt.Println("Error executing SQL query: ", err)
+							continue
+						} else {
+							fmt.Println("Employee Deleted Successfully")
+						}
 					}
-
-					var empId string
-
-					fmt.Print("Enter Employee ID to be deleted: ")
-					fmt.Scanln(&empId)
-					empId, err = getIdTemp(empId, "employee")
-					if err != nil {
-						fmt.Println("Error reservation ID:", err)
-					}
-
-					query := "DELETE FROM tbl_employees WHERE emp_id=?"
-					err = SQLManager(query, empId)
-					if err != nil {
-						fmt.Println("Error executing SQL query: ", err)
-						continue
-					}
-					fmt.Println("Employee Deleted Successfully")
-
+					
 				case 3:
 					fmt.Println("Going back to Admin Menu...")
 					continue OuterLoop
@@ -315,22 +338,40 @@ Enter your Choice: `)
 						fmt.Println("Error deleting doctor & room data:", err)
 					}
 
-					// To read the whole line, use standard input scanner
 					var roomId, doctorId string
-					fmt.Print("\nEnter room ID: ")
-					fmt.Scanln(&roomId)
-					roomId, err = getIdTemp(roomId, "room")
-					if err != nil {
-						fmt.Println("Error getting doctor ID:", err)
-						continue
+
+					for {
+						fmt.Print("\nEnter room ID (or press Enter to stop): ")
+						fmt.Scanln(&roomId)
+
+						if roomId == "" {
+							continue assignMenu
+						}
+
+						roomId, err = getIdTemp(roomId, "room")
+						if err != nil {
+							fmt.Println("Error getting room ID:", err)
+							continue
+						} else {
+							break
+						}
 					}
 
-					fmt.Print("Enter doctor ID: ")
-					fmt.Scanln(&doctorId)
-					doctorId, err = getIdTemp(doctorId, "employee")
-					if err != nil {
-						fmt.Println("Error getting doctor ID:", err)
-						continue
+					for {
+						fmt.Print("Enter doctor ID (or press Enter to stop): ")
+						fmt.Scanln(&doctorId)
+
+						if doctorId == "" {
+							continue assignMenu
+						}
+
+						doctorId, err = getIdTemp(doctorId, "employee")
+						if err != nil {
+							fmt.Println("Error getting doctor ID:", err)
+							continue
+						} else{
+							break
+						}
 					}
 
 					uuid := uuid.New().String()
@@ -341,6 +382,7 @@ Enter your Choice: `)
 					} else {
 						fmt.Println("Assigned doctor to a room")
 					}
+
 				case 2:
 					fmt.Println("\nAssigned Doctors: ")
 					err = printAssignedDoctor()
