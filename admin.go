@@ -338,22 +338,40 @@ Enter your Choice: `)
 						fmt.Println("Error deleting doctor & room data:", err)
 					}
 
-					// To read the whole line, use standard input scanner
 					var roomId, doctorId string
-					fmt.Print("\nEnter room ID: ")
-					fmt.Scanln(&roomId)
-					roomId, err = getIdTemp(roomId, "room")
-					if err != nil {
-						fmt.Println("Error getting doctor ID:", err)
-						continue
+
+					for {
+						fmt.Print("\nEnter room ID (or press Enter to stop): ")
+						fmt.Scanln(&roomId)
+
+						if roomId == "" {
+							continue assignMenu
+						}
+
+						roomId, err = getIdTemp(roomId, "room")
+						if err != nil {
+							fmt.Println("Error getting room ID:", err)
+							continue
+						} else {
+							break
+						}
 					}
 
-					fmt.Print("Enter doctor ID: ")
-					fmt.Scanln(&doctorId)
-					doctorId, err = getIdTemp(doctorId, "employee")
-					if err != nil {
-						fmt.Println("Error getting doctor ID:", err)
-						continue
+					for {
+						fmt.Print("Enter doctor ID (or press Enter to stop): ")
+						fmt.Scanln(&doctorId)
+
+						if doctorId == "" {
+							continue assignMenu
+						}
+
+						doctorId, err = getIdTemp(doctorId, "employee")
+						if err != nil {
+							fmt.Println("Error getting doctor ID:", err)
+							continue
+						} else{
+							break
+						}
 					}
 
 					uuid := uuid.New().String()
@@ -364,6 +382,7 @@ Enter your Choice: `)
 					} else {
 						fmt.Println("Assigned doctor to a room")
 					}
+
 				case 2:
 					fmt.Println("\nAssigned Doctors: ")
 					err = printAssignedDoctor()
