@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -392,6 +393,65 @@ func freeTime() error {
 			LEFT JOIN tbl_appointment_details ap ON td.rd_id = ap.rd_id AND t.time_id = ap.time AND ap.date = CURDATE()
 			WHERE ad.date IS NULL AND ap.reserve_id IS NULL;
     `)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	var prevDoctorID string
+	var isNewDoctor bool = true
+
+	for rows.Next() {
+		var doctorName, specialization, rdID, timeID, formattedStartTime, formattedEndTime string
+
+		err := rows.Scan(&doctorName, &specialization, &rdID, &timeID, &formattedStartTime, &formattedEndTime)
+		if err != nil {
+			return err
+		}
+
+		// Checker for new Doctor
+		isNewDoctor = !(doctorName == prevDoctorID)
+
+		// Output new Doctor
+		if isNewDoctor {
+			// Split rdID and take the first part
+			rdID = strings.Split(rdID, "-")[0]
+			fmt.Printf("Doctor: %s (rd_id: %s) | Specialization: %s \n", doctorName, rdID, specialization)
+		}
+
+		// Split timeID and take the first part
+		timeID = strings.Split(timeID, "-")[0]
+
+		fmt.Printf("\t- Time Slot: %s - %s (Time ID: %s)\n", formattedStartTime, formattedEndTime, timeID)
+
+		// Update Doctor ID
+		prevDoctorID = doctorName
+	}
+
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func freeTimeSelected(date time.Time, rdID string) error {
+	db, err := connectDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	rows, err := db.Query(`
+            SELECT CONCAT(e.first_name, ' ', e.middle_name, ' ', e.last_name) AS doctor_name, e.specialization, td.rd_id, td.time_id, DATE_FORMAT(t.start_time, '%h:%i:%s %p') AS formatted_start_time, DATE_FORMAT(t.end_time, '%h:%i:%s %p') AS formatted_end_time
+            FROM tbl_employees e
+            JOIN tbl_room_doctor rd ON e.emp_id = rd.doctor_id_fk
+            JOIN tbl_time_doctor td ON rd.rd_id = td.rd_id
+            JOIN tbl_time t ON td.time_id = t.time_id
+            LEFT JOIN tbl_avail_doctor ad ON td.ad_id = ad.ad_id AND ad.date = ?
+            LEFT JOIN tbl_appointment_details ap ON td.rd_id = ap.rd_id AND t.time_id = ap.time AND ap.date = ?
+            WHERE ad.date IS NULL AND ap.reserve_id IS NULL AND td.rd_id = ?;
+    `, date.Format("2006-01-02"), date.Format("2006-01-02"), rdID)
 	if err != nil {
 		return err
 	}

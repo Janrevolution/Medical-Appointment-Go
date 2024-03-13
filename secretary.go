@@ -180,6 +180,7 @@ Enter your choice: `)
 					}
 
 					var patientId, rdId, timeId, date, description string
+					var currentDate, parsedDate time.Time
 
 					for {
 						fmt.Print("Enter the Patient's ID: ")
@@ -228,14 +229,14 @@ Enter your choice: `)
 							continue reservationMenu
 						}
 						// Check if date is in the correct format
-						parsedDate, err := time.Parse("2006-01-02", date)
+						parsedDate, err = time.Parse("2006-01-02", date)
 						if err != nil {
 							fmt.Println("Invalid date format. Please enter a date in the format YYYY-MM-DD.")
 							continue
 						}
 
 						currentDateStr := time.Now().Format("2006-01-02")
-						currentDate, err := time.Parse("2006-01-02", currentDateStr)
+						currentDate, err = time.Parse("2006-01-02", currentDateStr)
 						if err != nil {
 							fmt.Println("Error parsing current date:", err)
 							return
@@ -246,12 +247,20 @@ Enter your choice: `)
 							continue
 						}
 
-						if isDuplicate := duplicatePatient(patientId, currentDate); isDuplicate {
+						if isDuplicate := duplicatePatient(patientId, parsedDate); isDuplicate {
 							fmt.Println("There already exists a record!")
 							continue
 						}
 
 						break
+					}
+
+					if parsedDate != currentDate {
+						fmt.Println("Free slots for the selected date are: ")
+						err = freeTimeSelected(parsedDate, rdId)
+						if err != nil {
+							fmt.Println("Error reading doctor free time data:", err)
+						}
 					}
 
 					for {
