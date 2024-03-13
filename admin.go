@@ -403,8 +403,9 @@ Enter your Choice: `)
 						if err != nil {
 							fmt.Println("Error getting doctor ID:", err)
 							continue
+						}else{
+							break
 						}
-						break
 					}
 
 					query := "DELETE FROM tbl_room_doctor WHERE rd_id = ?"
@@ -504,22 +505,29 @@ Enter your Choice: `)
 
 					reader := bufio.NewReader(os.Stdin)
 
+
 					for {
 						fmt.Print("Enter the date to be unavailable (YYYY-MM-DD) [enter if you want to go back to assign menu]: ")
 						date, _ = reader.ReadString('\n')
 						date = strings.TrimSpace(date) // Remove the newline character
-
+					
 						if date == "" {
 							continue assignMenu
 						}
 						// Check if date is in the correct format
-						_, err := time.Parse("2006-01-02", date)
+						inputDate, err := time.Parse("2006-01-02", date)
 						if err != nil {
 							fmt.Println("Invalid date format. Please enter a date in the format YYYY-MM-DD.")
 							continue
 						}
+						// Check if the date is in the future
+						if inputDate.Before(time.Now()) {
+							fmt.Println("The date should be in the future. Please enter a future date.")
+							continue
+						}
 						break
 					}
+
 					query := "INSERT INTO tbl_avail_doctor (ad_id, date) VALUES (?, ?)"
 					err = SQLManager(query, adId, date)
 					if err != nil {
