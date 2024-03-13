@@ -196,7 +196,8 @@ Enter your choice: `)
 
 					patientId, err := getIdTemp(patientId, "patient")
 					if err != nil {
-						fmt.Println("Error reservation ID:", err)
+						fmt.Println("Error getting patient ID:", err)
+						continue reservationMenu
 					}
 
 					for {
@@ -211,9 +212,11 @@ Enter your choice: `)
 							break
 						}
 					}
+
 					rdId, err = getIdTemp(rdId, "time_doctorRD")
 					if err != nil {
-						fmt.Println("Error reservation ID:", err)
+						fmt.Println("Error Time Doctor ID:", err)
+						continue reservationMenu
 					}
 
 					for {
