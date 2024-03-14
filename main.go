@@ -236,7 +236,6 @@ func duplicatePatient(patientID string, currentDate time.Time) bool {
 
 	var count int
 	currentDateStr := currentDate.Format("2006-01-02")
-	fmt.Print(currentDateStr)
 	err = db.QueryRow("SELECT COUNT(*) FROM tbl_appointment_details WHERE patient_id_fk = ? AND date = ?", patientID, currentDateStr).Scan(&count)
 	if err != nil {
 		// Handle error
